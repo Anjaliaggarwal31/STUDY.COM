@@ -13,139 +13,148 @@ st.set_page_config(page_title="Study Sync", layout="wide")
 st.markdown("""
     <style>
         body {
-            background-color: #fce4ec;
-            color: #880e4f;
+            background-color: #f4f6f8;
         }
         .main, .block-container {
-            background-color: #fff0f5;
-            border-radius: 10px;
+            background-color: #ffffff;
+            border-radius: 12px;
             padding: 2rem;
         }
         .big-font {
             font-size: 24px !important;
             font-weight: bold;
-            color: #ad1457;
+            color: #0d47a1;
+        }
+        .st-bb {
+            background-color: #e3f2fd;
         }
     </style>
 """, unsafe_allow_html=True)
 
 # Banner
-st.markdown("<h1 style='text-align: center; color: #e91e63;'>🎓 Welcome to Study Sync 🎓</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Collaborative study. Consistency. Success. 🚀</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #1565c0;'>📘 Study Sync</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Study smarter, not harder. Collaborate with your ideal study partner across the globe.</p>", unsafe_allow_html=True)
 
 # Sidebar menu
 with st.sidebar:
-    choice = option_menu("Navigation", ["Home", "Register", "Find Study Partner", "Subscriptions", "Feedback"],
-                         icons=['house', 'person', 'people', 'gem', 'chat'], menu_icon="cast", default_index=0)
+    choice = option_menu("Menu", ["Home", "Register", "Find Partner", "Subscriptions", "Feedback"],
+                         icons=["house", "person", "people", "gem", "chat"], menu_icon="cast", default_index=0)
 
 # Home Page
 if choice == "Home":
-    st.image("https://cdn.pixabay.com/photo/2015/01/08/18/29/student-593333_1280.jpg", use_column_width=True)
-    st.subheader("🏆 Your Study Points")
-    st.success(f"You've earned {st.session_state.points} points.")
-    st.markdown("**Tip:** Study consistently every week for 1 year to unlock job placement & teacher support.")
+    st.image("https://cdn.pixabay.com/photo/2016/11/29/05/08/adult-1868750_1280.jpg", use_container_width=True)
+    st.subheader("📈 Progress Dashboard")
+    st.success(f"Total Points: {st.session_state.points}")
+    st.info("Study consistently every week for a year to unlock job placement support, teacher access & more.")
 
-# Registration Page
+# Registration
 elif choice == "Register":
-    st.header("📝 Student Registration")
-    with st.form("register_form"):
+    st.header("🎓 Student Registration")
+    with st.form("registration_form"):
         col1, col2 = st.columns(2)
         with col1:
-            name = st.text_input("Full Name")
+            full_name = st.text_input("Full Name")
             gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-            language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "German", "Other"])
-            level = st.selectbox("Knowledge Level", ["Basic", "Intermediate", "Advanced"])
+            language = st.selectbox("Preferred Study Language", ["English", "Hindi", "Spanish", "French", "German", "Other"])
+            knowledge = st.selectbox("Your Current Knowledge Level", ["Basic", "Intermediate", "Advanced"])
             goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Concept Clarity"])
+            study_duration = st.slider("Preferred Daily Study Duration (in hours)", 1, 10, 2)
         with col2:
-            college_list = ["IIT Delhi", "DU", "NSUT", "IIIT-Delhi", "Oxford", "Harvard", "MIT", "Other"]
-            selected_college = st.selectbox("University", college_list)
-            if selected_college == "Other":
-                college = st.text_input("Enter your University")
+            student_type = st.radio("Are you a...", ["University Student", "Professional Course Student"])
+            if student_type == "University Student":
+                university = st.selectbox("Select Your University", ["IIT Delhi", "DU", "NSUT", "IIITD", "Oxford", "Harvard", "MIT", "Other"])
+                if university == "Other":
+                    university = st.text_input("Enter University Name")
             else:
-                college = selected_college
-            timezone = st.selectbox("Time Zone", [
+                university = st.selectbox("Professional Course", ["ICAI", "ACCA", "CMA", "CFA", "Other"])
+                if university == "Other":
+                    university = st.text_input("Enter Institute Name")
+            timezone = st.selectbox("Select Your Time Zone", [
                 "IST (Indian Standard Time)",
-                "EST (Eastern Time - US)",
-                "PST (Pacific Time - US)",
+                "EST (Eastern Standard Time)",
+                "PST (Pacific Time)",
                 "CET (Central European Time)",
-                "AEST (Australian Eastern Time)",
-                "GMT (Greenwich Mean Time)"
+                "GMT (Greenwich Mean Time)",
+                "AEST (Australian Eastern Standard Time)"
             ])
-            duration = st.slider("Preferred Daily Study Duration (hrs)", 1, 12, 2)
-            subject_focus = st.text_input("Subjects you want to focus on")
-            id_upload = st.file_uploader("Upload College ID or Verification Document")
-        submitted = st.form_submit_button("Register")
-        if submitted:
-            st.success("✅ Registered Successfully! Go to 'Find Study Partner' to continue.")
+            id_upload = st.file_uploader("Upload Student ID / Proof (PDF, JPG, PNG)")
+
+        register_submit = st.form_submit_button("Register")
+        if register_submit:
+            st.success("✅ Registered Successfully! Go to 'Find Partner' to match.")
             st.session_state.points += 10
 
-# Match Partner
-elif choice == "Find Study Partner":
-    st.header("🤝 Find Your Study Partner")
-    with st.form("partner_form"):
+# Match Study Partner
+elif choice == "Find Partner":
+    st.header("🔍 Find Your Ideal Study Partner")
+    with st.form("match_form"):
         col1, col2 = st.columns(2)
         with col1:
-            preferred_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female"])
-            partner_language = st.selectbox("Preferred Language for Partner", ["English", "Hindi", "Spanish", "Other"])
-            match_level = st.selectbox("Partner Knowledge Level", ["Any", "Basic", "Intermediate", "Advanced"])
+            partner_gender = st.selectbox("Preferred Gender", ["Any", "Male", "Female"])
+            partner_language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
+            partner_level = st.selectbox("Partner Knowledge Level", ["Any", "Basic", "Intermediate", "Advanced"])
         with col2:
-            study_subject = st.text_input("Study Subject")
-            mode = st.radio("Study Mode", ["Audio", "Video", "Chat Only", "Recording Upload"])
-            partner_timezone = st.selectbox("Partner Timezone", [
-                "IST", "EST", "PST", "CET", "AEST", "GMT"
+            partner_timezone = st.selectbox("Preferred Partner Time Zone", [
+                "IST", "EST", "PST", "CET", "GMT", "AEST"
             ])
-        match_btn = st.form_submit_button("🔍 Find Partner")
-        if match_btn:
-            st.success("🎉 Partner found based on preferences! Connect and start learning.")
+            study_mode = st.radio("Study Mode", ["Video", "Audio", "Chat", "Recording Exchange"])
+            subject_focus = st.text_input("Subject Focus")
+
+        match_submit = st.form_submit_button("Find Partner")
+        if match_submit:
+            st.success("🎉 Partner matched successfully! Connect and start learning.")
             st.session_state.points += 20
 
-# Subscription Plans + Teacher Registration
+# Subscription and Teacher Access
 elif choice == "Subscriptions":
-    st.header("💎 Subscription Plans")
+    st.header("💼 Subscriptions & Teacher Access")
+
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.subheader("Free")
-        st.write("✔ Basic Partner Match")
-        st.write("✔ Weekly Study Tips")
+        st.subheader("Free Plan")
+        st.write("- Partner Matching")
+        st.write("- Weekly Study Tips")
     with col2:
-        st.subheader("Pro - ₹499/month")
-        st.write("✔ All Free Features")
-        st.write("✔ Access to Teachers")
-        st.write("✔ Mock Tests & Guidance")
+        st.subheader("Pro ₹499/month")
+        st.write("- Everything in Free Plan")
+        st.write("- Access to Teachers")
+        st.write("- Personalized Support")
     with col3:
-        st.subheader("Premium Yearly - ₹4999")
-        st.write("✔ All Pro Features")
-        st.write("✔ Job Placement Support")
-        st.write("✔ Personalized Reports & AI Suggestions")
-    
-    if st.button("🚀 Subscribe"):
+        st.subheader("Premium ₹4999/year")
+        st.write("- All Pro Features")
+        st.write("- Job Placement Assistance")
+        st.write("- AI-Powered Study Plans")
+
+    if st.button("📥 Subscribe Now"):
         st.session_state.subscribed = True
-        st.success("🎉 Subscribed! Teacher access and placement unlocked.")
-        st.session_state.points += 50
+        st.success("✅ Subscription Activated!")
+        st.session_state.points += 30
 
     if st.session_state.subscribed:
-        st.markdown("### 🧑‍🏫 Teacher Registration (Available only with Subscription)")
+        st.markdown("### 📘 Become a Teacher (Available only after Subscription)")
         with st.form("teacher_form"):
-            teacher_name = st.text_input("Your Name")
-            teach_college = st.text_input("University/Institute")
-            subject = st.text_input("Subject You Can Teach")
-            fee = st.number_input("Expected Fee (₹/month)", min_value=0)
-            is_available = st.checkbox("Available for this SPAC/Class/Subject")
+            t_name = st.text_input("Your Name")
+            t_institute = st.text_input("Institute/University")
+            t_subject = st.text_input("Subject You Can Teach")
+            t_fee = st.number_input("Tuition Fee (₹ per month)", min_value=0, step=100)
+            t_available = st.checkbox("I'm available for this SPAC/Session")
+
             submit_teacher = st.form_submit_button("Register as Teacher")
             if submit_teacher:
-                st.success("✅ You’re now listed as a teacher! Students can now find you.")
+                st.success("✅ You are now registered as a teacher!")
+                st.session_state.points += 20
 
 # Feedback
 elif choice == "Feedback":
-    st.header("🗣 Feedback After Study Session")
+    st.header("🗣 Share Your Feedback")
     with st.form("feedback_form"):
-        session_rating = st.slider("Rate Your Study Session", 1, 5, 3)
-        feedback = st.text_area("Comments or Suggestions")
-        submitted = st.form_submit_button("Submit")
-        if submitted:
-            st.success("🙌 Thanks for your feedback! You've earned more points.")
+        session_rating = st.slider("Rate Your Session", 1, 5, 4)
+        feedback_text = st.text_area("Suggestions / Comments")
+        feed_submit = st.form_submit_button("Submit Feedback")
+        if feed_submit:
+            st.success("🎯 Thank you for your valuable feedback!")
             st.session_state.points += 5
 
-# Footer
+# Footer Message
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #6a1b9a;'>Keep going! You’re building a habit. Study one week straight to unlock mentorship. 💡</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #455a64;'>Study consistently for a week to earn bonus points. A year of effort leads to teacher guidance & job placement. 🚀</p>", unsafe_allow_html=True)
