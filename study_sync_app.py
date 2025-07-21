@@ -1,137 +1,150 @@
 import streamlit as st
 import pandas as pd
-from PIL import Image
 from datetime import datetime
+from PIL import Image
 
-# -------------------- Sample College Data --------------------
-colleges = {
-    "IIT Delhi": 15,
-    "IIT Bombay": 20,
-    "IIM Bangalore": 10,
-    "DU (Delhi University)": 5,
-    "JNU": 5,
-    "BITS Pilani": 20,
-    "Others": 0
-}
+# ---------------------- Page Configuration ----------------------
+st.set_page_config(page_title="StudySync - Find Your Study Buddy", layout="wide")
 
-# -------------------- Page Configuration --------------------
-st.set_page_config(page_title="StudySync - Study Partner App", layout="centered")
+# ---------------------- Branding ----------------------
+st.markdown("""
+    <style>
+    .main {
+        background-color: #fff0f6;
+    }
+    .css-1d391kg { background-color: #fce4ec !important; }
+    .stButton>button {
+        background-color: #ff69b4;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+    }
+    .stSelectbox, .stTextInput, .stDateInput, .stFileUploader, .stTimeInput {
+        background-color: #fff0f6;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# -------------------- Sidebar Menu --------------------
-menu = [
-    "Home", 
-    "Register", 
-    "Login", 
-    "Find Study Partner", 
-    "Subscription", 
-    "College Onboarding"
-]
-choice = st.sidebar.selectbox("📋 Menu", menu)
+# ---------------------- App Header ----------------------
+st.markdown("""
+    <h1 style='text-align: center; color: #9c27b0;'>🎓 StudySync</h1>
+    <h3 style='text-align: center; color: #e91e63;'>Find Study Buddies, Track Your Progress, and Enjoy Learning!</h3>
+    <p style='text-align: center;'>🏆 Earn points for studying, give feedback, and build your academic network!</p>
+""", unsafe_allow_html=True)
 
-# -------------------- Home --------------------
-if choice == "Home":
-    st.title("🎓 StudySync - Connect. Study. Succeed.")
-    st.subheader("🌍 Find study partners or groups worldwide.")
-    st.markdown("Built for students who struggle to find serious study buddies.")
-    st.image("https://cdn.pixabay.com/photo/2020/03/31/16/16/online-4983591_1280.jpg", use_column_width=True)
-    st.info("💡 Free for 1 year • Upgrade to get teacher assistance, job placement support & more!")
+st.image("https://cdn.pixabay.com/photo/2017/01/31/17/44/study-2020463_1280.png", use_column_width=True)
 
-# -------------------- Registration --------------------
-elif choice == "Register":
-    st.header("🔐 Student Registration")
+# ---------------------- Sidebar ----------------------
+menu = ["🏠 Dashboard", "📚 Register", "🔐 Login", "🧠 Find Study Partner", "💼 Subscription", "🏫 College Portal"]
+choice = st.sidebar.selectbox("Navigate", menu)
+
+# ---------------------- Dashboard ----------------------
+if choice == "🏠 Dashboard":
+    st.subheader("Welcome to StudySync")
+    st.success("Your studies are going strong. Keep going! ✨")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("📚 Sessions Completed", "23")
+        st.metric("🏆 Points Earned", "280")
+    with col2:
+        st.metric("👥 Partners Matched", "12")
+        st.metric("📅 Upcoming Sessions", "3")
+
+    st.image("https://cdn.pixabay.com/photo/2016/09/21/12/39/back-to-school-1683316_1280.png", use_column_width=True)
+
+# ---------------------- Register ----------------------
+elif choice == "📚 Register":
+    st.header("Create Your Free StudySync Account")
     name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
-    college = st.selectbox("Select Your College", list(colleges.keys()))
-    education = st.selectbox("Current Education Level", ["UG", "PG", "PhD", "Others"])
-    discipline = st.selectbox("Discipline", ["Engineering", "Science", "Arts", "Commerce", "Law", "Medical", "Other"])
-    id_card = st.file_uploader("Upload Student ID (JPEG/PNG/PDF)")
-    password = st.text_input("Create Password", type='password')
-    register_btn = st.button("Register")
-
-    if register_btn:
-        if name and email and id_card:
-            st.success(f"🎉 Welcome {name}! You have successfully registered.")
-        else:
-            st.warning("⚠️ Please fill all required fields!")
-
-# -------------------- Login --------------------
-elif choice == "Login":
-    st.header("🔑 Login to StudySync")
     email = st.text_input("Email")
-    password = st.text_input("Password", type='password')
-    login_btn = st.button("Login")
+    college = st.selectbox("Your College", [
+        "IIT Delhi", "SRCC Delhi", "St. Stephen's College", "AIIMS Delhi", "JNU", 
+        "Harvard University", "University of Cambridge", "NUS Singapore", "Other"
+    ])
+    discipline = st.selectbox("Discipline", ["Engineering", "Science", "Commerce", "Arts", "Law", "Medical"])
+    subjects = st.multiselect("Subjects You Want to Study", [
+        "Python", "Statistics", "Data Science", "Marketing", "Economics", "Physics", "AI/ML", "Finance"
+    ])
+    id_card = st.file_uploader("Upload Your Student ID (PDF/JPEG)")
+    password = st.text_input("Create Password", type="password")
 
-    if login_btn:
-        if email and password:
-            st.success(f"Welcome back! You're now logged in.")
-        else:
-            st.warning("⚠️ Please enter email and password.")
+    if st.button("Register Now"):
+        st.success(f"Welcome, {name}! You've joined StudySync 🎉")
 
-# -------------------- Find Study Partner --------------------
-elif choice == "Find Study Partner":
-    st.header("👥 Match With Study Partner or Join Group")
-    discipline = st.selectbox("Discipline", ["Engineering", "Science", "Arts", "Commerce", "Law", "Medical", "Other"])
-    subject = st.selectbox("Preferred Subject", ["Math", "AI/ML", "Finance", "Python", "Marketing", "Other"])
-    time_slot = st.time_input("Preferred Study Time")
-    mode = st.radio("Study Mode", ["1-on-1 Partner", "Group Study"])
-    ready_status = st.checkbox("✅ Ready to Study Now")
+# ---------------------- Login ----------------------
+elif choice == "🔐 Login":
+    st.header("Login to Your StudySync Account")
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        st.success("You're now logged in. Welcome back!")
 
-    if ready_status:
-        st.success("You're now visible to others as 'Ready to Study'!")
+# ---------------------- Find Study Partner ----------------------
+elif choice == "🧠 Find Study Partner":
+    st.header("Match With a Study Partner or Group")
+    subject = st.selectbox("Subject You Want to Study", [
+        "Python", "Statistics", "AI/ML", "Marketing", "Finance", "Economics", "Physics", "Math"
+    ])
+    discipline = st.selectbox("Your Discipline", ["Engineering", "Science", "Commerce", "Arts", "Medical"])
+    time = st.time_input("Your Preferred Study Time")
+    mode = st.radio("Mode", ["1-on-1 Partner", "Group Study"])
+    ready_now = st.checkbox("✅ I'm Ready to Study Now")
 
-    if st.button("Search Partner/Group"):
-        st.success(f"🔍 Matching {discipline} students for {mode} in {subject} at {time_slot.strftime('%H:%M')}...")
+    if st.button("🔍 Find a Partner/Group"):
+        st.success(f"Great! We've found a {mode} for {subject} at {time.strftime('%I:%M %p')}")
+        st.markdown("""
+        **Partner Found:**
+        - 👤 Name: Priya Singh
+        - 📘 Subject: Python
+        - 🧠 Discipline: Engineering
+        - 🕒 Time: 6:00 PM
+        """)
+        st.button("Connect with Priya")
 
-        # Simulated Partner Matching
-        st.markdown("**Suggested Partner**: Ankit Sharma")
-        st.markdown("Discipline: Engineering | Subject: Python | Time: 10:30 AM")
-        st.button("Connect with Ankit")
+    if st.button("✅ I studied today!"):
+        st.success("Well done! You've earned 10 points. Did you enjoy studying with your partner?")
+        feedback = st.text_area("Write a short feedback about the session")
+        st.button("Submit Feedback")
 
-    st.markdown("---")
-    st.subheader("📅 Mark Today’s Session")
-    if st.button("✅ I Studied with My Partner Today"):
-        st.success("Logged your study session successfully!")
-        feedback = st.text_area("📝 Feedback (Optional): How was your session?")
-        if st.button("Submit Feedback"):
-            st.success("Thanks! Your feedback helps us improve partner matching.")
+    suggestion = st.text_area("🎯 Who would be your ideal partner? What features should we add?")
+    if st.button("💡 Submit Suggestion"):
+        st.success("Thanks for the suggestion! We'll try to make your next study experience even better.")
 
-    st.markdown("---")
-    st.subheader("🎯 Suggest Your Ideal Partner/Group")
-    suggestion = st.text_area("Tell us what kind of partner or group you'd like to study with.")
-    if st.button("Submit Suggestion"):
-        st.success("Your suggestion has been submitted. We'll match you better next time!")
-
-# -------------------- Subscription --------------------
-elif choice == "Subscription":
-    st.header("💼 Upgrade to Premium Plan")
-    plan = st.selectbox("Choose Plan", ["Free - 1 Year", "Premium - ₹999/year"])
-    uploaded_id = st.file_uploader("Upload Valid Student ID for Verification")
-
+# ---------------------- Subscription ----------------------
+elif choice == "💼 Subscription":
+    st.header("Upgrade for Premium Features")
+    plan = st.radio("Choose a Plan", ["Free - 1 Year", "Premium - ₹999/year"])
     if plan == "Premium - ₹999/year":
-        st.markdown("### 🔥 Premium Benefits")
-        st.markdown("- Teacher Assistance 👩‍🏫")
-        st.markdown("- Verified Partner Matching ✅")
-        st.markdown("- Job / Placement Support 💼")
-        st.markdown("- Discounts Based on College 🎓")
-        if uploaded_id:
-            st.success("ID Verified. Payment pending.")
+        st.markdown("""
+        **Premium Includes:**
+        - 🧑‍🏫 Teacher Assistance
+        - 📈 Job/Placement Support
+        - ✅ Verified Matching
+        - 🎓 Discounts for Partner Colleges
+        """)
+        upload = st.file_uploader("Upload Valid Student ID")
         st.button("Proceed to Payment")
 
-# -------------------- College Onboarding --------------------
-elif choice == "College Onboarding":
-    st.header("🏫 Register Your College")
+# ---------------------- College Portal ----------------------
+elif choice == "🏫 College Portal":
+    st.header("Onboard Your College to StudySync")
     cname = st.text_input("College Name")
-    cemail = st.text_input("College Contact Email")
-    discount = st.slider("Set Student Discount (%)", 0, 50, 10)
-    doc = st.file_uploader("Upload College Affiliation Proof")
-
+    email = st.text_input("Official College Email")
+    discount = st.slider("Discount for Your Students (%)", 0, 50, 10)
+    doc = st.file_uploader("Upload College Affiliation Certificate")
     if st.button("Submit College Request"):
         if cname and doc:
-            st.success(f"{cname} submitted for onboarding. We will verify soon.")
+            st.success(f"Thanks! {cname} has been submitted for onboarding.")
         else:
-            st.warning("⚠️ Please upload document and fill all required fields.")
+            st.warning("Please upload the required document and fill all details.")
 
-# -------------------- Footer --------------------
-st.markdown("---")
-st.caption("🔒 Your data is secure with StudySync. | © 2025 StudySync")
-
+# ---------------------- Footer ----------------------
+st.markdown("""
+    <hr>
+    <p style='text-align: center;'>
+        💡 "Use your mind, make the most of your time!" <br>
+        🚀 StudySync - Designed to make your learning journey more joyful and social. <br>
+        📬 support@studysync.com
+    </p>
+""", unsafe_allow_html=True)
