@@ -1,92 +1,122 @@
 import streamlit as st
-from PIL import Image
-from datetime import datetime
-import pytz
+from streamlit_option_menu import option_menu
+import pandas as pd
 
-# App config
-st.set_page_config(page_title="Study Sync", page_icon="📚", layout="wide")
+# -------------------- Page Config --------------------
+st.set_page_config(page_title="StudySync", layout="wide")
 
-# Custom CSS for pastel theme
+# -------------------- App Styling --------------------
 st.markdown("""
     <style>
         body {
-            background-color: #fefaff;
+            background-color: #f0f4f8;
         }
-        .title-text {
-            color: #7b4397;
-            font-size: 40px;
-            font-weight: bold;
+        .main {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .motivation {
-            font-size: 18px;
-            color: #ff5f6d;
+        .css-1d391kg, .css-18e3th9 {
+            background-color: #f0f4f8;
         }
-        .section-header {
-            font-size: 22px;
-            color: #6a11cb;
-            font-weight: 600;
-        }
-        .stButton>button {
-            background-color: #f093fb;
-            color: white;
-            font-weight: bold;
-            border-radius: 12px;
+        h1, h3, h4 {
+            color: #5f27cd;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# Load images
-trophy_img = Image.open("assets/trophy.png")
-banner_img = Image.open("assets/study_banner.jpg")
+# -------------------- Sidebar Menu --------------------
+with st.sidebar:
+    selected = option_menu(
+        menu_title="Navigate",
+        options=["Dashboard", "Register", "Study Partners", "About"],
+        icons=["house", "person-add", "people", "info-circle"],
+        menu_icon="cast",
+        default_index=0,
+        styles={
+            "container": {"padding": "5px", "background-color": "#ffeef2"},
+            "icon": {"color": "#5f27cd", "font-size": "18px"},
+            "nav-link": {
+                "font-size": "16px",
+                "text-align": "left",
+                "margin": "5px",
+                "--hover-color": "#f1f3f5"
+            },
+            "nav-link-selected": {"background-color": "#e8f0ff"},
+        }
+    )
 
-# Splash and introduction screens
-with st.container():
-    st.image(banner_img, use_container_width=True)
-    st.markdown('<div class="title-text">Welcome to Study Sync 📚</div>', unsafe_allow_html=True)
-    st.markdown('<div class="motivation">Your partner in collaborative and fun studying!</div>', unsafe_allow_html=True)
+# -------------------- Dashboard --------------------
+if selected == "Dashboard":
+    st.markdown("<h1 style='text-align: center;'>🎓 StudySync</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Find Study Buddies, Track Progress & Crush Exams Together!</h3>", unsafe_allow_html=True)
+
     st.markdown("---")
+    st.success("💡 Tip: Stay consistent and track your weekly study goals!")
+    st.info("📌 This app helps you find partners based on preferred time, subject, language, goals, and even comfort level.")
 
-# Main form
-st.markdown('<div class="section-header">🔐 Register to Find a Study Partner</div>', unsafe_allow_html=True)
+# -------------------- Registration Page --------------------
+elif selected == "Register":
+    st.header("👤 Register to Find Study Buddies")
 
-with st.form("registration_form", clear_on_submit=False):
-    col1, col2 = st.columns(2)
-    with col1:
-        name = st.text_input("👤 Your Name")
-        gender = st.selectbox("🚻 Gender", ["Prefer not to say", "Female", "Male", "Non-binary"])
-        language = st.selectbox("🗣 Preferred Language", ["English", "Hindi", "Spanish", "French", "Mandarin", "Other"])
-        level = st.selectbox("🎓 Your Knowledge Level", ["Basic", "Intermediate", "Advanced"])
-        goal = st.selectbox("🎯 Goal", ["Quick Revision", "In-depth Study", "Competitive Exam Prep"])
-    with col2:
-        subjects = st.multiselect("📘 Subjects You Want to Study", ["Math", "Science", "History", "Accounts", "Economics", "Coding", "Marketing"])
-        timezone = st.selectbox("🌐 Select Your TimeZone", pytz.all_timezones)
-        duration = st.slider("⏱ Preferred Study Duration (in hours)", 1, 6, 2)
-        visibility = st.radio("🎥 Visibility Preference", ["Audio Only", "Video Allowed", "Share Recorded Clips", "No Sharing"])
+    with st.form("register_form", clear_on_submit=True):
+        col1, col2 = st.columns(2)
 
-    college = st.selectbox("🏫 Your College or Exam", [
-        "Delhi University", "IIT Delhi", "Jamia Millia", "AIIMS Delhi", 
-        "Harvard", "MIT", "Oxford", "University of Toronto", "Other"
-    ])
+        with col1:
+            name = st.text_input("Full Name")
+            age = st.number_input("Age", min_value=12, max_value=60)
+            gender = st.selectbox("Gender", ["Prefer not to say", "Female", "Male", "Other"])
+            language = st.multiselect("Languages You Speak", ["English", "Hindi", "Spanish", "French", "Chinese", "Other"])
+            timezone = st.selectbox("Select Your Time Zone", [
+                "IST (UTC+5:30)", "EST (UTC-5)", "PST (UTC-8)", "CET (UTC+1)", "GMT (UTC+0)", "JST (UTC+9)"
+            ])
 
-    submit_btn = st.form_submit_button("🔍 Find Study Partner")
+        with col2:
+            subject = st.text_input("Subject or Topic of Interest")
+            knowledge_level = st.radio("Your Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
+            goal = st.selectbox("Your Study Goal", [
+                "Preparing for competitive exam",
+                "Revising for college exam",
+                "Quick 1-day crash revision",
+                "General learning"
+            ])
+            duration = st.slider("How many hours do you plan to study daily?", 0.5, 8.0, step=0.5)
 
-    if submit_btn:
-        st.success(f"✨ Hey {name}, you're all set!")
-        st.markdown(f"""
-        - 🌍 **TimeZone:** {timezone}  
-        - 📚 **Subjects:** {', '.join(subjects)}  
-        - 🧑‍🤝‍🧑 Gender preference: **{gender}**  
-        - 🌐 Language: **{language}**  
-        - 🎓 Level: **{level}**  
-        - 🎯 Goal: **{goal}**  
-        - ⏱ Duration: **{duration} hour(s)**  
-        - 🔐 College/Exam: **{college}**  
-        - 🎥 Visibility: **{visibility}**  
-        """)
-        st.balloons()
-        st.image(trophy_img, caption="You just earned 100 points 🏆", use_column_width=True)
-        st.markdown("<div class='motivation'>Well done! You've just started your study journey! Enjoy studying with your partner. 🚀</div>", unsafe_allow_html=True)
+        st.markdown("### 🔊 Visibility Preferences")
+        video_pref = st.checkbox("Allow video-based study")
+        audio_pref = st.checkbox("Allow voice/audio interaction")
+        upload_recordings = st.file_uploader("Upload Sample Study Recording (optional)", type=["mp3", "mp4", "wav", "mov"])
 
-# Footer
-st.markdown("---")
-st.markdown("<div style='text-align:center'>Use your mind. Stay curious. Keep going! 🌟</div>", unsafe_allow_html=True)
+        submitted = st.form_submit_button("📥 Submit")
+        if submitted:
+            st.success("🎉 Registration complete! We'll match you with a compatible study buddy soon.")
+
+# -------------------- Study Partner List (Mock UI) --------------------
+elif selected == "Study Partners":
+    st.header("📚 Suggested Study Buddies")
+    sample_data = {
+        "Name": ["Aman Sharma", "Lina Zhang", "Carlos Perez", "Fatima Noor"],
+        "Subject": ["Maths", "Data Science", "French Grammar", "History"],
+        "Level": ["Intermediate", "Advanced", "Beginner", "Intermediate"],
+        "Time Zone": ["IST", "JST", "CET", "GMT"],
+        "Language": ["English, Hindi", "Chinese", "Spanish", "English, Arabic"]
+    }
+    df = pd.DataFrame(sample_data)
+    st.table(df)
+
+# -------------------- About --------------------
+elif selected == "About":
+    st.subheader("📌 About StudySync")
+    st.write("""
+    StudySync is a collaborative study app built for learners across the globe to connect based on comfort, subject expertise, language, and time preference.
+
+    **Features:**
+    - Match with partners based on gender, time zone, goals & subject
+    - Choose between video/audio/text study sessions
+    - Upload recordings and track goals
+    - Clean UI inspired by real learning apps like WiFiStudy
+
+    🛠 Built with Python, Streamlit & ❤️ for learners everywhere!
+    """)
+
