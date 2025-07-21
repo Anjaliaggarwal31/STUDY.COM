@@ -1,4 +1,3 @@
-streamlit run study_sync_app.py
 import streamlit as st
 import pandas as pd
 from PIL import Image
