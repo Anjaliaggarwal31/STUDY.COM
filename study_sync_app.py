@@ -36,7 +36,7 @@ st.markdown("""
     <p style='text-align: center;'>🏆 Earn points, track your progress, and match with study partners.</p>
 """, unsafe_allow_html=True)
 
-st.image("https://cdn.pixabay.com/photo/2017/01/31/17/44/study-2020463_1280.png", use_column_width=True)
+st.image("https://cdn.pixabay.com/photo/2017/01/31/17/44/study-2020463_1280.png", use_container_width=True)
 
 # ---------------------- Navigation Menu ----------------------
 menu = ["🏠 Dashboard", "📚 Register", "🔐 Login", "🧠 Find Study Partner", "💼 Subscription", "🏫 College Portal"]
@@ -55,13 +55,15 @@ if choice == "🏠 Dashboard":
         st.metric("👥 Partners Matched", "12")
         st.metric("📅 Upcoming Sessions", "3")
 
-    st.image("https://cdn.pixabay.com/photo/2016/09/21/12/39/back-to-school-1683316_1280.png", use_column_width=True)
+    st.image("https://cdn.pixabay.com/photo/2016/09/21/12/39/back-to-school-1683316_1280.png", use_container_width=True)
 
 # ---------------------- Register ----------------------
 elif choice == "📚 Register":
     st.header("📄 Create Your StudySync Profile")
     name = st.text_input("👤 Full Name")
     email = st.text_input("📧 Email")
+    gender = st.radio("🧑 Gender", ["Male", "Female", "Other", "Prefer not to say"])
+    language = st.selectbox("🗣️ Preferred Language", ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Other"])
     college = st.selectbox("🏫 Your College", [
         "IIT Delhi", "SRCC Delhi", "St. Stephen's", "AIIMS", "Jamia", "JNU",
         "Harvard University", "Cambridge University", "Stanford", "Oxford", "NUS Singapore", "Other"
@@ -91,18 +93,25 @@ elif choice == "🧠 Find Study Partner":
         "Python", "Statistics", "AI/ML", "Marketing", "Finance", "Economics", "Physics", "Math"
     ])
     discipline = st.selectbox("🎓 Your Discipline", ["Engineering", "Science", "Commerce", "Arts", "Medical"])
+    gender_pref = st.radio("👥 Preferred Gender of Study Partner", ["Any", "Male", "Female", "Other"])
+    language_pref = st.selectbox("🗣️ Preferred Language for Communication", ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Other"])
+    knowledge_level = st.selectbox("📊 Your Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
+    goal = st.radio("🎯 Your Study Goal", ["Competitive Exam Prep", "Course Exams", "Skill Development", "Others"])
     time = st.time_input("🕒 Preferred Study Time")
     mode = st.radio("Mode", ["1-on-1 Partner", "Group Study"])
     ready_now = st.checkbox("✅ I'm Ready to Study Now")
 
     if st.button("🔍 Find a Study Partner"):
-        st.success(f"🎉 Partner found for {subject} at {time.strftime('%I:%M %p')}!")
+        st.success(f"🎉 Match found for {subject} at {time.strftime('%I:%M %p')} with preferred language {language_pref} and level {knowledge_level}!")
         st.markdown("""
         **Partner Match:**
         - 👤 Name: Priya Singh
         - 📘 Subject: Python
         - 🎓 Discipline: Engineering
         - 🕒 Time: 6:00 PM
+        - 🧑 Gender: Female
+        - 🗣️ Language: English
+        - 📊 Level: Intermediate
         """)
         st.button("💬 Connect with Priya")
 
