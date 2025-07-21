@@ -1,8 +1,10 @@
-streamlit run study_sync_app.py
+# ✅ Correct: These are Python imports
 import streamlit as st
-from PIL import Image
+from streamlit_option_menu import option_menu
 import pandas as pd
+from PIL import Image
 from datetime import datetime
+
 
 # -------------------- Sample College Data --------------------
 colleges = {
