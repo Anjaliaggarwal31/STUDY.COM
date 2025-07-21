@@ -1,4 +1,3 @@
-pip install streamlit streamlit-option-menu pandas Pillow
 streamlit run study_sync_app.py
 import streamlit as st
 from PIL import Image
