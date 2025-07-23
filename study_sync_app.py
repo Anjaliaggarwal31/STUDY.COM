@@ -2,201 +2,175 @@ import streamlit as st
 import pandas as pd
 import time
 
-# Initialize session state
-if 'registered' not in st.session_state:
-    st.session_state.registered = False
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'welcome'
+st.set_page_config(page_title="StudySync", layout="wide")
 
-# Dummy partner and student list
-partner_list = []
-students_for_teachers = [
-    {"Name": "Ravi Patel", "Subject": "Maths", "Time Zone": "GMT+5.5"},
-    {"Name": "Aanya Singh", "Subject": "Biology", "Time Zone": "GMT+2"},
+# Session initialization
+if "page" not in st.session_state:
+    st.session_state.page = "home"
+if "students" not in st.session_state:
+    st.session_state.students = []
+if "teachers" not in st.session_state:
+    st.session_state.teachers = []
+if "partners" not in st.session_state:
+    st.session_state.partners = []
+
+# 🎯 Motivational Messages
+motivational_quotes = [
+    "📚 Study Together, 🌱 Grow Together, 🚀 Succeed Together!",
+    "💡 One step at a time is progress.",
+    "🔥 Stay focused and never give up!",
 ]
 
-universities = ["DERI", "IIT", "IIM", "International Universities", "Others"]
-courses = ["UG", "PG", "Professional", "PhD", "Others"]
-subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Others"]
-time_zones = [f"GMT{offset:+}" for offset in range(-12, 13)] + ["GMT+5.5"]
+# ⏩ Navigation control
+def change_page(page_name):
+    st.session_state.page = page_name
 
-# Welcome screen
-def welcome_screen():
-    st.markdown("""
-        <h1 style='text-align:center; font-size: 50px;'>📘 StudySync</h1>
-        <h3 style='text-align:center; color: grey;'>Study Together. Proceed Together. Succeed Together.</h3>
-    """, unsafe_allow_html=True)
-    st.write("")
-    col = st.columns(3)
-    with col[1]:
-        if st.button("🚀 Register Now"):
-            st.session_state.current_page = 'register'
+# 🎬 Welcome Screen
+def home_screen():
+    st.markdown(
+        "<h1 style='text-align: center; color: #4CAF50;'>📘 StudySync</h1>",
+        unsafe_allow_html=True)
+    st.markdown(
+        f"<h4 style='text-align: center;'>{motivational_quotes[0]}</h4>",
+        unsafe_allow_html=True)
+    st.markdown("### ")
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    if st.button("🚀 Register Now", use_container_width=True):
+        change_page("register")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# Registration interface
-def registration():
-    st.markdown("""<h1 style='text-align: center;'>📝 Student Registration</h1>""", unsafe_allow_html=True)
-    with st.form("student_registration_form"):
-        name = st.text_input("Full Name")
-        email = st.text_input("Email")
-        gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-        timezone = st.selectbox("Your Time Zone", time_zones)
+# 📥 Registration Form
+def register_screen():
+    st.title("👩‍🎓 Student Registration")
+    with st.form("register_form"):
+        name = st.text_input("👤 Name*", placeholder="Enter your full name")
+        email = st.text_input("📧 Email")
+        gender = st.selectbox("⚧️ Gender", ["Male", "Female", "Other"])
+        if gender == "Other":
+            specify_gender = st.text_input("Please Specify Gender")
+        timezone = st.selectbox("🌐 Time Zone", ["IST", "EST", "PST", "Other"])
+        if timezone == "Other":
+            specify_timezone = st.text_input("Please Specify Time Zone")
 
-        university = st.selectbox("University", universities)
-        if university == "Others":
-            university = st.text_input("Please specify your university")
+        university = st.selectbox("🎓 University", ["IIT", "IIM", "DERI", "Other"])
+        if university == "Other":
+            specify_univ = st.text_input("Please Specify University")
 
-        course = st.selectbox("Course", courses)
-        if course == "Others":
-            course = st.text_input("Please specify your course")
+        course = st.selectbox("📘 Course Type", ["UG", "PG", "PhD", "Professional", "Other"])
+        if course == "Other":
+            specify_course = st.text_input("Please Specify Course")
 
-        goal = st.selectbox("Study Goal", [
-            "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Competitive Exam", "Professional Exam"])
+        subject = st.selectbox("📖 Subject", ["Math", "Physics", "Chemistry", "CS", "Other"])
+        if subject == "Other":
+            specify_subject = st.text_input("Please Specify Subject")
 
-        language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
-        if language == "Other":
-            language = st.text_input("Please specify language")
+        goal = st.selectbox("🎯 Study Goal", ["Crash Course", "Detailed Prep", "Exam Tomorrow", "Competitive Exam", "Professional Exam", "Other"])
+        if goal == "Other":
+            specify_goal = st.text_input("Please Specify Study Goal")
 
-        uploaded_file = st.file_uploader("Upload Student ID (Optional)", type=["png", "jpg", "pdf"])
-        st.text("OR")
-        skip = st.checkbox("Skip for now")
+        study_mode = st.multiselect("💻 Preferred Study Mode", ["Video", "Audio", "Notes", "Chat"])
 
-        submitted = st.form_submit_button("Register Now")
+        study_type = st.selectbox("🤝 Looking for", ["One-to-One Partner", "Group Study"])
+        id_upload = st.file_uploader("🪪 Upload Student ID", type=["jpg", "png", "pdf"])
+
+        submitted = st.form_submit_button("✅ Register")
         if submitted:
-            if name:
-                st.session_state.name = name
-                st.session_state.university = university
-                st.session_state.course = course
-                st.session_state.registered = True
-                st.session_state.current_page = 'partner_details'
-                st.success(f"🎉 {name}, you have registered successfully! 👍")
-                time.sleep(2)
+            if name.strip() == "":
+                st.error("❌ Name is a required field!")
+                st.markdown("<style>input:focus {border-color: red;}</style>", unsafe_allow_html=True)
             else:
-                st.error("Please enter your name to register.")
+                st.success(f"🎉 {name}, you have registered successfully!")
+                st.session_state.students.append({
+                    "Name": name,
+                    "Subject": subject,
+                    "Mode": study_mode,
+                    "Study Type": study_type
+                })
+                time.sleep(2)
+                change_page("partner")
 
-# Partner Preferences Interface
-def partner_details():
-    st.markdown("""<h1 style='text-align: center;'>🤝 Partner Preferences</h1>""", unsafe_allow_html=True)
-    with st.form("partner_preferences_form"):
-        study_type = st.selectbox("Study Type", ["One-to-One", "Group Study"])
-        partner_gender = st.selectbox("Preferred Partner Gender", ["Male", "Female", "Other"])
-        partner_level = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
+# 🤝 Partner Matching Page
+def partner_screen():
+    st.title("🤝 Looking for a Partner to Study With")
+    subject_interest = st.selectbox("📚 What subject do you want to study?", ["Math", "Physics", "CS", "Other"])
+    if subject_interest == "Other":
+        st.text_input("Please Specify Subject")
 
-        partner_subject = st.selectbox("Preferred Subject", subjects)
-        if partner_subject == "Others":
-            partner_subject = st.text_input("Please specify the subject")
-
-        partner_language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
-        if partner_language == "Other":
-            partner_language = st.text_input("Please specify language")
-
-        partner_timezone = st.selectbox("Partner's Time Zone", time_zones)
-
-        submitted = st.form_submit_button("Save Preferences")
-        if submitted:
-            st.session_state.current_page = 'menu'
-            partner_list.append({
-                "Name": st.session_state.get('name', 'Your Partner'),
-                "University": st.session_state.get('university', 'NA'),
-                "Course": st.session_state.get('course', 'NA'),
-                "Language": partner_language,
-                "Knowledge Level": partner_level,
-                "Subject": partner_subject,
-                "Time Zone": partner_timezone
-            })
-            st.success("✅ Partner preferences saved!")
-            time.sleep(1)
-
-# Sidebar Menu after registration
-def menu():
-    st.sidebar.title("📚 Navigation")
-    option = st.sidebar.radio("Choose an Option:", [
-        "Find a Study Partner", "Teacher Assistant", "Subscription Plans", "Feedback"])
-
-    if option == "Find a Study Partner":
-        partner_matching()
-    elif option == "Teacher Assistant":
-        teacher_registration()
-    elif option == "Subscription Plans":
-        subscription_plans()
-    elif option == "Feedback":
-        feedback()
-
-# Study Partner Matching interface
-def partner_matching():
-    st.header("👫 Find Study Partner")
-    st.markdown("> 📌 Stay consistent, your success is one study session away!")
-    if partner_list:
-        st.dataframe(pd.DataFrame(partner_list))
+    filtered = [s for s in st.session_state.students if s["Subject"] == subject_interest]
+    if filtered:
+        st.markdown("### 📋 Available Study Partners:")
+        df = pd.DataFrame(filtered)
+        df["Partner Name"] = ["Alice", "Bob", "Charlie", "Dev", "Eva"][:len(df)]
+        st.dataframe(df[["Partner Name", "Subject", "Study Type", "Mode"]])
     else:
-        st.warning("No partner preferences available yet.")
+        st.info("🔍 No matching partners found right now.")
 
-# Subscription Plans
-def subscription_plans():
-    st.header("💳 Subscription Plans (₹)")
-    st.markdown("> ✨ Upgrade your access for more features!")
+# 👨‍🏫 Teacher Assistant Page
+def teacher_screen():
+    st.title("📚 Teacher Assistant Registration")
+    with st.form("teacher_form"):
+        name = st.text_input("👩‍🏫 Full Name")
+        university = st.selectbox("🏫 University", ["IIT", "IIM", "DERI", "Other"])
+        if university == "Other":
+            st.text_input("Please Specify University")
+
+        subject = st.selectbox("📘 Subject Expertise", ["Math", "Physics", "CS", "Other"])
+        if subject == "Other":
+            st.text_input("Please Specify Subject")
+
+        duration = st.selectbox("⏱️ Teaching Duration", ["1 hour", "2-3 hours", "3+ hours"])
+        fee = st.selectbox("💰 Hourly Fee", ["Free", "₹100", "₹200", "$5", "$10"])
+        current_status = st.radio("🎓 Are you currently working?", ["Yes", "No"])
+        id_upload = st.file_uploader("🪪 Upload ID", type=["jpg", "png", "pdf"])
+        submitted = st.form_submit_button("📩 Submit")
+
+        if submitted and name:
+            st.success(f"🙌 {name}, you're registered as a teacher!")
+            st.balloons()
+            st.session_state.teachers.append({"Name": name, "Subject": subject})
+            st.markdown("### 👨‍🎓 Students Looking for Teachers")
+            student_df = pd.DataFrame(st.session_state.students)
+            st.dataframe(student_df[["Name", "Subject", "Study Type"]])
+
+# 💳 Subscription Plans
+def subscription_screen():
+    st.title("🎫 Subscription Plans")
     col1, col2, col3 = st.columns(3)
-
     with col1:
-        st.subheader("🟢 Basic Plan")
-        st.markdown("Free Access to Study Partner Matching")
-        if st.button("Choose Basic", key="basic_plan"):
-            st.success("✅ You have subscribed to the Basic Plan!")
-
+        st.header("🆓 Basic (Free)")
+        st.markdown("- Access to study partners\n- Use of study tools\n- Community access")
+        st.success("Included for all users!")
     with col2:
-        st.subheader("🔵 Premium Plan")
-        st.markdown("₹499 - Access to Teachers + Study Planner + Reminders")
-        if st.button("Choose Premium", key="premium_plan"):
-            method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="premium_payment")
-            st.success(f"✅ You have chosen the Premium Plan. Pay via {method} to proceed.")
+        st.header("💎 Premium")
+        st.markdown("- All Basic features\n- Access to Teacher Assistants\n- Study Resources")
+        if st.button("Upgrade to Premium"):
+            st.info("💳 Choose payment method: UPI / Net Banking / Card")
 
     with col3:
-        st.subheader("🟣 Elite Plan")
-        st.markdown("₹999 - Premium + Job Placement + Certificate + Feedback Sessions")
-        if st.button("Choose Elite", key="elite_plan"):
-            method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="elite_payment")
-            st.success(f"✅ You have chosen the Elite Plan. Pay via {method} to proceed.")
+        st.header("👑 Elite")
+        st.markdown("- All Premium features\n- Job Placement Support\n- Mock Interviews\n- Priority Support")
+        if st.button("Upgrade to Elite"):
+            st.warning("💳 Payment required: ₹999 or $15")
 
-# Teacher Registration interface
-def teacher_registration():
-    st.header("👩‍🏫 Teacher Registration")
-    st.markdown("> 🌟 Great teachers inspire great students.")
-    name = st.text_input("Full Name", key="teacher_name")
-    subject = st.selectbox("Subject Expertise", subjects, key="teacher_subject")
-    if subject == "Others":
-        subject = st.text_input("Please specify your subject", key="teacher_subject_other")
-    hourly_fee = st.selectbox("Teaching Fee (per hour)", ["₹100", "₹250", "₹500", "₹1000"], key="teacher_fee")
-    duration = st.selectbox("Preferred Teaching Duration", ["1 hour", "2 hours", "3 hours"], key="teacher_duration")
-    university = st.selectbox("University", universities, key="teacher_uni")
-    if university == "Others":
-        university = st.text_input("Please specify your university", key="teacher_uni_other")
-    working_status = st.selectbox("Currently Working?", ["Yes", "No"], key="teacher_status")
-    uploaded_file = st.file_uploader("Upload Teacher ID", type=["png", "jpg", "pdf"], key="teacher_id")
+# ✍️ Feedback Section
+def feedback_screen():
+    st.title("🗣️ Give Your Feedback")
+    feedback = st.text_area("✍️ Share your experience or suggestions...")
+    if st.button("📬 Submit Feedback"):
+        st.success("Thanks for your feedback! 💖")
 
-    if st.button("Register as Teacher", key="register_teacher"):
-        if name:
-            st.success(f"🎓 {name}, you are successfully registered as a Teacher! 👏")
-            st.subheader("📢 Are you looking for students? These are the students available to teach:")
-            st.dataframe(pd.DataFrame(students_for_teachers))
-        else:
-            st.error("Please enter your full name")
-
-# Feedback form
-def feedback():
-    st.header("🗣️ We value your feedback!")
-    st.markdown("> 💬 Help us improve your study experience.")
-    name = st.text_input("Your Name", key="feedback_name")
-    rating = st.slider("Rate your experience", 1, 5)
-    comments = st.text_area("Any suggestions or issues?")
-
-    if st.button("📤 Submit Feedback"):
-        st.success("🙌 Thank you for your feedback!")
-
-# Page routing
-if st.session_state.current_page == 'welcome':
-    welcome_screen()
-elif st.session_state.current_page == 'register':
-    registration()
-elif st.session_state.current_page == 'partner_details':
-    partner_details()
-elif st.session_state.current_page == 'menu':
-    menu()
+# 🚀 Sidebar Navigation
+if st.session_state.page != "home":
+    menu = st.sidebar.radio("📂 Menu", ["Partners", "Teacher Assistant", "Subscription", "Feedback"])
+    if menu == "Partners":
+        partner_screen()
+    elif menu == "Teacher Assistant":
+        teacher_screen()
+    elif menu == "Subscription":
+        subscription_screen()
+    elif menu == "Feedback":
+        feedback_screen()
+elif st.session_state.page == "home":
+    home_screen()
+elif st.session_state.page == "register":
+    register_screen()
