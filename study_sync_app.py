@@ -20,7 +20,6 @@ subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Oth
 time_zones = [f"GMT{offset:+}" for offset in range(-12, 13)] + ["GMT+5.5"]
 
 # Welcome screen
-
 def welcome_screen():
     st.markdown("""
         <h1 style='text-align:center; font-size: 50px;'>📘 StudySync</h1>
@@ -33,7 +32,6 @@ def welcome_screen():
             st.session_state.current_page = 'register'
 
 # Registration interface
-
 def registration():
     st.markdown("""<h1 style='text-align: center;'>📝 Student Registration</h1>""", unsafe_allow_html=True)
     with st.form("student_registration_form"):
@@ -68,7 +66,6 @@ def registration():
                 st.error("Please enter your name to register.")
 
 # Sidebar Menu after registration
-
 def menu():
     st.sidebar.title("📚 Navigation")
     option = st.sidebar.radio("Choose an Option:", [
@@ -84,7 +81,6 @@ def menu():
         feedback()
 
 # Study Partner Matching interface
-
 def partner_matching():
     st.header("👫 Find Study Partner")
     st.markdown("> 📌 Stay consistent, your success is one study session away!")
@@ -104,7 +100,6 @@ def partner_matching():
         st.dataframe(pd.DataFrame(partner_list))
 
 # Subscription Plans
-
 def subscription_plans():
     st.header("💳 Subscription Plans (₹)")
     st.markdown("> ✨ Upgrade your access for more features!")
@@ -131,12 +126,13 @@ def subscription_plans():
             st.success(f"✅ You have chosen the Elite Plan. Pay via {method} to proceed.")
 
 # Teacher Registration interface
-
 def teacher_registration():
     st.header("👩‍🏫 Teacher Registration")
     st.markdown("> 🌟 Great teachers inspire great students.")
     name = st.text_input("Full Name", key="teacher_name")
     subject = st.selectbox("Subject Expertise", subjects, key="teacher_subject")
+    if subject == "Others":
+        subject = st.text_input("Please specify your subject", key="teacher_subject_other")
     hourly_fee = st.selectbox("Teaching Fee (per hour)", ["₹100", "₹250", "₹500", "₹1000"], key="teacher_fee")
     duration = st.selectbox("Preferred Teaching Duration", ["1 hour", "2 hours", "3 hours"], key="teacher_duration")
     university = st.selectbox("University", universities, key="teacher_uni")
@@ -148,11 +144,12 @@ def teacher_registration():
     if st.button("Register as Teacher", key="register_teacher"):
         if name:
             st.success(f"🎓 {name}, you are successfully registered as a Teacher! 👏")
+            st.subheader("📢 Are you looking for students? These are the students available to teach:")
+            st.dataframe(pd.DataFrame(partner_list))
         else:
             st.error("Please enter your full name")
 
 # Feedback form
-
 def feedback():
     st.header("🗣️ We value your feedback!")
     st.markdown("> 💬 Help us improve your study experience.")
@@ -164,7 +161,6 @@ def feedback():
         st.success("🙌 Thank you for your feedback!")
 
 # Page routing
-
 if st.session_state.current_page == 'welcome':
     welcome_screen()
 elif st.session_state.current_page == 'register':
