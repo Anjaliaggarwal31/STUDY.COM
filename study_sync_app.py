@@ -1,158 +1,160 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
-from datetime import datetime
+import pandas as pd
 
-# Initialize session state
+st.set_page_config(page_title="Study Sync", layout="wide")
+
+# Session init
 if 'points' not in st.session_state:
     st.session_state.points = 0
-if 'subscribed' not in st.session_state:
-    st.session_state.subscribed = False
+if 'partners' not in st.session_state:
+    st.session_state.partners = []
 
-# Page Config
-st.set_page_config(page_title="Study Sync", layout="wide")
+# Style and Banner
 st.markdown("""
     <style>
-        .main, .block-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 2rem;
-        }
-        .big-font {
-            font-size: 24px !important;
-            font-weight: bold;
-            color: #0d47a1;
-        }
-        .st-bb {
-            background-color: #e3f2fd;
-        }
+    .reportview-container {
+        background: #f5f7fa;
+        color: #333;
+    }
+    .main {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 2rem;
+    }
+    .stButton>button {
+        background-color: #2e7d32;
+        color: white;
+        font-weight: bold;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Header
-st.markdown("<h1 style='text-align: center; color: #1565c0;'>📘 Study Sync</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Smarter learning through peer and teacher collaboration.</p>", unsafe_allow_html=True)
+st.image("https://cdn.pixabay.com/photo/2016/03/26/13/09/student-1284258_1280.jpg", use_container_width=True)
+st.title("🎓 Study Sync – Collaborate. Learn. Grow.")
 
-# Sidebar menu
-with st.sidebar:
-    choice = option_menu("Menu", ["Home", "Register", "Find Partner", "Subscriptions", "Feedback"],
-                         icons=["house", "person", "people", "gem", "chat"], menu_icon="cast", default_index=0)
+menu = st.sidebar.radio("Go to", ["🏠 Home", "📝 Register", "🤝 Find Partner", "🎓 Teacher Corner", "💎 Subscriptions", "📋 Feedback"])
 
-# Home Page
-if choice == "Home":
-    st.image("https://cdn.pixabay.com/photo/2016/11/29/05/08/adult-1868750_1280.jpg", use_container_width=True)
-    st.subheader("📈 Progress Dashboard")
-    st.success(f"Total Points: {st.session_state.points}")
-    st.info("📢 Earn more points by participating. A year of activity unlocks full platform features!")
+# Home
+if menu == "🏠 Home":
+    st.subheader("Welcome Back to Study Sync!")
+    st.success(f"⭐ You have {st.session_state.points} points.")
+    st.info("🧠 Tip: Complete consistent weekly study to unlock job placement support.")
+    st.checkbox("Block Background Distractions")
 
-# Registration Page
-elif choice == "Register":
-    st.header("🎓 Student Registration")
-    with st.form("registration_form"):
+# Register
+elif menu == "📝 Register":
+    st.header("📌 Student Registration Form")
+    with st.form("register"):
         col1, col2 = st.columns(2)
         with col1:
-            full_name = st.text_input("Full Name")
+            name = st.text_input("Full Name")
             gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-            language = st.selectbox("Preferred Study Language", ["English", "Hindi", "Spanish", "French", "Other"])
-            knowledge = st.selectbox("Your Knowledge Level", ["Basic", "Intermediate", "Advanced"])
-            goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Prep", "Exam Tomorrow", "Concept Clarity"])
-            duration = st.slider("Daily Study Duration (hrs)", 1, 10, 2)
-        with col2:
-            category = st.radio("Your Category", ["University Student", "Professional Course"])
-            if category == "University Student":
-                university = st.selectbox("Select University", ["IIT Delhi", "DU", "NSUT", "IIITD", "Oxford", "Harvard", "MIT", "Other"])
-                if university == "Other":
-                    university = st.text_input("Enter University Name")
-            else:
-                university = st.selectbox("Select Institute", ["ICAI", "ACCA", "CMA", "CFA", "Other"])
-                if university == "Other":
-                    university = st.text_input("Enter Institute Name")
-            timezone = st.selectbox("Your Time Zone", [
-                "IST (Indian Standard Time)",
-                "EST (Eastern Standard Time)",
-                "PST (Pacific Time)",
-                "CET (Central European Time)",
-                "GMT (Greenwich Mean Time)",
-                "AEST (Australian Eastern Standard Time)"
+            edu_type = st.selectbox("Education Type", ["UG", "PG", "Professional Course"])
+            if edu_type == "Professional Course":
+                profession = st.selectbox("Select Course", ["CA", "CMA", "ACCA", "CFA", "Other"])
+            college = st.text_input("Institute / University Name")
+            degree = st.text_input("Degree / Course")
+            timezone = st.selectbox("Timezone", [
+                "IST (Indian Standard Time)", "EST", "PST", "CET", "GMT", "AEST", "JST", "Others"
             ])
-            id_upload = st.file_uploader("Upload Student ID / Proof (PDF, JPG, PNG)")
-
-        reg_submit = st.form_submit_button("Register")
-        if reg_submit:
-            st.success("✅ Registration Complete! Go to 'Find Partner' to proceed.")
+        with col2:
+            language = st.selectbox("Preferred Language", ["English", "Hindi", "French", "Spanish", "German", "Other"])
+            study_goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Preparation", "Concept Clarity", "Exam Tomorrow"])
+            mode = st.radio("Study Preference", ["1:1 Partner", "Group Study"])
+            duration = st.slider("Preferred Study Duration (in hours)", 1, 12, 2)
+            id_doc = st.file_uploader("Upload College ID / Proof", type=["png", "jpg", "pdf"])
+        submitted = st.form_submit_button("Register")
+        if submitted:
+            st.success("🎉 Registered Successfully! You're ready to study.")
             st.session_state.points += 10
 
-# Find Partner Page
-elif choice == "Find Partner":
-    st.header("🤝 Match With a Study Partner")
-    with st.form("match_form"):
+# Find Study Partner
+elif menu == "🤝 Find Partner":
+    st.header("🔍 Match with Study Partners")
+    with st.form("partner_form"):
         col1, col2 = st.columns(2)
         with col1:
-            pref_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female"])
-            pref_language = st.selectbox("Partner Language", ["English", "Hindi", "Spanish", "French", "Other"])
-            pref_level = st.selectbox("Knowledge Level", ["Any", "Basic", "Intermediate", "Advanced"])
-            study_mode = st.radio("Preferred Mode", ["One-to-One", "Group Study"])
+            topic = st.text_input("Study Subject")
+            level = st.selectbox("Your Knowledge Level", ["Basic", "Intermediate", "Advanced"])
+            preferred_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female"])
         with col2:
-            partner_timezone = st.selectbox("Partner Time Zone", [
-                "IST", "EST", "PST", "CET", "GMT", "AEST"
+            time_zone = st.selectbox("Preferred Partner Timezone", [
+                "IST (Indian Standard Time)", "EST", "PST", "CET", "GMT", "AEST", "JST", "Others"
             ])
-            interaction_mode = st.radio("Interaction Type", ["Video", "Audio", "Chat", "Recording Exchange"])
-            focus_area = st.text_input("Subject Focus")
-
-        match_submit = st.form_submit_button("Find Partner")
-        if match_submit:
-            st.success("🎯 Partner(s) matched successfully!")
+            study_mode = st.radio("Mode of Study", ["Audio", "Video", "Chat", "Recording Upload"])
+            match_type = st.radio("Do you want 1:1 or Group?", ["1:1", "Group"])
+        find = st.form_submit_button("🔍 Search")
+        if find:
+            partner = {
+                "Subject": topic,
+                "Level": level,
+                "Gender": preferred_gender,
+                "Mode": study_mode,
+                "Timezone": time_zone
+            }
+            st.session_state.partners.append(partner)
+            st.success("✅ Partner(s) found! Connect securely to start learning.")
+            st.balloons()
             st.session_state.points += 20
+            st.write("📜 Partner List:")
+            st.dataframe(pd.DataFrame(st.session_state.partners))
 
-# Subscriptions and Teacher Options
-elif choice == "Subscriptions":
-    st.header("💼 Subscription Plans")
+# Teacher Corner
+elif menu == "🎓 Teacher Corner":
+    st.header("👩‍🏫 Teacher Registration & Offering")
+    with st.form("teacher_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            teacher_name = st.text_input("Your Name")
+            teacher_univ = st.text_input("University / Institution")
+            subject = st.text_input("Subjects You Want to Teach")
+        with col2:
+            available = st.selectbox("Are You Currently Available?", ["Yes", "No"])
+            experience = st.slider("Years of Teaching Experience", 0, 20, 2)
+            fee = st.number_input("Monthly Fee Expected (INR)", min_value=0)
+        submitted = st.form_submit_button("Register as Teacher")
+        if submitted:
+            if fee > 0:
+                st.success(f"🎉 Registered as Teacher! Students can now view you as a premium mentor. Expected Fee: ₹{fee}/month")
+                st.session_state.points += 30
+            else:
+                st.warning("💡 Please set a valid teaching fee.")
 
+# Subscriptions
+elif menu == "💎 Subscriptions":
+    st.header("📦 Subscription Plans")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.subheader("Free")
-        st.write("✔ Partner Matching\n✔ Study Tips\n❌ Teacher Access")
+        st.subheader("🆓 Free Plan")
+        st.write("- Basic Partner Matching")
+        st.write("- Weekly Tips & Motivation")
     with col2:
-        st.subheader("Pro ₹499/month")
-        st.write("✔ All Free Features\n✔ Teacher Access\n✔ AI Study Plans")
+        st.subheader("✨ Pro Plan ₹499/month")
+        st.write("- Access to Registered Teachers")
+        st.write("- Audio/Video Collaboration")
+        st.write("- Personalized Feedback")
     with col3:
-        st.subheader("Premium ₹4999/year")
-        st.write("✔ All Pro Features\n✔ Job Placement\n✔ Priority Support")
+        st.subheader("🏅 Premium Yearly ₹4999")
+        st.write("- All Pro Features")
+        st.write("- Job Placement Assistance")
+        st.write("- Monthly Review Reports")
+    if st.button("🔓 Subscribe Now"):
+        st.success("🎊 Subscribed Successfully! Unlocking Pro Features.")
+        st.session_state.points += 50
+    else:
+        st.warning("❌ Subscription Failed. Please check payment.")
 
-    if st.button("Subscribe Now"):
-        st.session_state.subscribed = True
-        st.success("✅ Subscription Activated!")
-        st.session_state.points += 30
-
-    # Teacher Feature (only for subscribers)
-    if st.session_state.subscribed:
-        st.markdown("### 👩‍🏫 Teacher Registration (for Subscribers Only)")
-        with st.form("teacher_form"):
-            t_name = st.text_input("Your Name")
-            t_university = st.text_input("Your University/Institute")
-            t_subjects = st.text_area("Subjects You Can Teach")
-            t_experience = st.text_input("Brief Teaching Experience or Area of Study")
-            is_free = st.radio("Teaching Type", ["Free", "Paid"])
-            fee = 0
-            if is_free == "Paid":
-                fee = st.number_input("Monthly Fee (in ₹)", min_value=0, step=100)
-            available = st.checkbox("I am currently available to take students")
-
-            t_submit = st.form_submit_button("Register as Teacher")
-            if t_submit:
-                st.success("🎓 Registered as Teacher Successfully!")
-                st.session_state.points += 25
-
-# Feedback Page
-elif choice == "Feedback":
-    st.header("📢 Feedback")
+# Feedback
+elif menu == "📋 Feedback":
+    st.header("📣 Share Feedback on Sessions")
     with st.form("feedback_form"):
-        rating = st.slider("Rate Study Sync", 1, 5, 4)
-        feedback = st.text_area("Your Suggestions / Experience")
-        fb_submit = st.form_submit_button("Submit Feedback")
-        if fb_submit:
-            st.success("🙌 Thanks for your feedback!")
+        rating = st.slider("Rate Your Session", 1, 5, 3)
+        comment = st.text_area("Any Comments or Suggestions?")
+        submit = st.form_submit_button("Submit")
+        if submit:
+            st.success("🙏 Thank you for your valuable feedback.")
             st.session_state.points += 5
 
 # Footer
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #607d8b;'>📚 A year of learning = teacher access + job support + growth. Study with purpose!</p>", unsafe_allow_html=True)
+st.markdown("<center>📘 Powered by Study Sync | Consistency Unlocks Your Future 🚀</center>", unsafe_allow_html=True)
