@@ -8,10 +8,14 @@ if 'registered' not in st.session_state:
 if 'current_page' not in st.session_state:
     st.session_state.current_page = 'welcome'
 
-# Dummy partner list with realistic names
+# Dummy partner and student list
 partner_list = [
     {"Name": "Aarav Mehta", "University": "IIT Delhi", "Course": "UG", "Language": "English", "Knowledge Level": "Advanced", "Subject": "Maths", "Time Zone": "GMT+1"},
     {"Name": "Sara Khan", "University": "DERI", "Course": "PG", "Language": "Hindi", "Knowledge Level": "Intermediate", "Subject": "Physics", "Time Zone": "GMT+5.5"},
+]
+students_for_teachers = [
+    {"Name": "Ravi Patel", "Subject": "Maths", "Time Zone": "GMT+5.5"},
+    {"Name": "Aanya Singh", "Subject": "Biology", "Time Zone": "GMT+2"},
 ]
 
 universities = ["DERI", "IIT", "IIM", "International Universities", "Others"]
@@ -46,8 +50,7 @@ def registration():
         if course == "Others":
             course = st.text_input("Please specify your course")
         goal = st.selectbox("Study Goal", [
-            "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Competitive Exam", "Professional Exam"
-        ])
+            "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Competitive Exam", "Professional Exam"])
         language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
         if language == "Other":
             language = st.text_input("Please specify language")
@@ -90,7 +93,9 @@ def partner_matching():
     partner_subject = st.selectbox("Preferred Subject", subjects)
     if partner_subject == "Others":
         partner_subject = st.text_input("Please specify the subject")
-    partner_language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French"])
+    partner_language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
+    if partner_language == "Other":
+        partner_language = st.text_input("Please specify language")
     partner_timezone = st.selectbox("Partner's Time Zone", time_zones)
 
     if st.button("🔍 Find Partner"):
@@ -145,7 +150,7 @@ def teacher_registration():
         if name:
             st.success(f"🎓 {name}, you are successfully registered as a Teacher! 👏")
             st.subheader("📢 Are you looking for students? These are the students available to teach:")
-            st.dataframe(pd.DataFrame(partner_list))
+            st.dataframe(pd.DataFrame(students_for_teachers))
         else:
             st.error("Please enter your full name")
 
