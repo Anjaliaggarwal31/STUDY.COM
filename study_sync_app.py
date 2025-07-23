@@ -29,7 +29,8 @@ def welcome_screen():
     st.write("")
     col = st.columns(3)
     with col[1]:
-        st.session_state.current_page = 'register'
+        if st.button("🚀 Register Now"):
+            st.session_state.current_page = 'register'
 
 # Registration interface
 def registration():
@@ -62,6 +63,9 @@ def registration():
         submitted = st.form_submit_button("Register Now")
         if submitted:
             if name:
+                st.session_state.name = name
+                st.session_state.university = university
+                st.session_state.course = course
                 st.session_state.registered = True
                 st.session_state.current_page = 'partner_details'
                 st.success(f"🎉 {name}, you have registered successfully! 👍")
