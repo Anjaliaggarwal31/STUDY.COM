@@ -18,11 +18,25 @@ courses = ["UG", "PG", "Professional", "PhD", "Others"]
 subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Others"]
 time_zones = ["GMT-12", "GMT-11", "GMT-10", "GMT-9", "GMT-8", "GMT-7", "GMT-6", "GMT-5", "GMT-4", "GMT-3", "GMT-2", "GMT-1", "GMT", "GMT+1", "GMT+2", "GMT+3", "GMT+4", "GMT+5", "GMT+5.5", "GMT+6", "GMT+7", "GMT+8", "GMT+9", "GMT+10", "GMT+11", "GMT+12"]
 
+# Sidebar after registration
+if st.session_state.registered:
+    with st.sidebar:
+        st.markdown("### Navigation")
+        if st.button("🎓 Teacher Assistant"):
+            st.session_state.current_page = 'teacher'
+        if st.button("🤝 Find Partner"):
+            st.session_state.current_page = 'partner'
+        if st.button("💳 Subscription"):
+            st.session_state.current_page = 'subscription'
+        if st.button("📝 Feedback"):
+            st.session_state.current_page = 'feedback'
+
 # Welcome screen
+
 def welcome_screen():
     st.markdown("""
         <h1 style='text-align:center; font-size: 50px;'>📘 StudySync</h1>
-        <h3 style='text-align:center; color: grey;'>"Empower Your Learning Journey – One Match at a Time"</h3>
+        <h3 style='text-align:center; color: grey;'>Study Together. Proceed Together. Succeed Together.</h3>
     """, unsafe_allow_html=True)
     st.write("")
     col = st.columns(3)
@@ -34,6 +48,8 @@ def welcome_screen():
 
 def registration():
     st.markdown("<h1 style='text-align: center;'>Student Registration</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "> 💡 \"The future belongs to those who prepare for it today.\" – Malcolm X")
     name = st.text_input("Full Name")
     email = st.text_input("Email")
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
@@ -44,7 +60,8 @@ def registration():
     course = st.selectbox("Course", courses)
     if course == "Others":
         course = st.text_input("Please specify your course")
-    goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Preparation"])
+    goal = st.selectbox("Study Goal", [
+        "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam"])
     language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
     if language == "Other":
         language = st.text_input("Please specify language")
@@ -64,7 +81,10 @@ def registration():
 # Study Partner Matching interface
 
 def partner_matching():
-    st.header("Find Study Partner")
+    st.markdown("""
+    <h2>🔍 Find a Study Partner</h2>
+    <blockquote>"Alone we can do so little, together we can do so much." – Helen Keller</blockquote>
+    """, unsafe_allow_html=True)
     study_type = st.selectbox("Study Type", ["One-to-One", "Group Study"])
     partner_gender = st.selectbox("Preferred Partner Gender", ["Male", "Female", "Other"])
     partner_level = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
@@ -77,17 +97,17 @@ def partner_matching():
     if st.button("Find Partner"):
         st.success("Matching with partners...")
         time.sleep(2)
-        st.subheader("Partner List")
+        st.subheader("Matched Partners")
         for partner in partner_list:
             st.markdown(f"**{partner['Name']}** from **{partner['University']}** - {partner['Course']} | Subject: {partner['Subject']} | Language: {partner['Language']} | Knowledge Level: {partner['Knowledge Level']} | Time Zone: {partner['Time Zone']}")
-
-    if st.button("Proceed to Subscription"):
-        st.session_state.current_page = 'subscription'
 
 # Subscription Plans
 
 def subscription_plans():
-    st.header("Subscription Plans (₹)")
+    st.markdown("""
+    <h2>📦 Subscription Plans</h2>
+    <blockquote>"An investment in knowledge pays the best interest." – Benjamin Franklin</blockquote>
+    """, unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -110,13 +130,13 @@ def subscription_plans():
             method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="elite_payment")
             st.success(f"You have chosen the Elite Plan. Pay via {method} to proceed.")
 
-    if st.button("Proceed to Teacher Registration"):
-        st.session_state.current_page = 'teacher'
-
 # Teacher Registration interface
 
 def teacher_registration():
-    st.header("Teacher Registration")
+    st.markdown("""
+    <h2>👩‍🏫 Teacher Registration</h2>
+    <blockquote>"A good teacher can inspire hope, ignite the imagination, and instill a love of learning." – Brad Henry</blockquote>
+    """, unsafe_allow_html=True)
     name = st.text_input("Full Name", key="teacher_name")
     subject = st.selectbox("Subject Expertise", subjects, key="teacher_subject")
     hourly_fee = st.selectbox("Teaching Fee (per hour)", ["₹100", "₹250", "₹500", "₹1000"], key="teacher_fee")
@@ -133,13 +153,13 @@ def teacher_registration():
         else:
             st.error("Please enter your full name")
 
-    if st.button("Proceed to Feedback"):
-        st.session_state.current_page = 'feedback'
-
 # Feedback form
 
 def feedback():
-    st.header("We value your feedback!")
+    st.markdown("""
+    <h2>📢 We value your feedback!</h2>
+    <blockquote>"Feedback is the breakfast of champions." – Ken Blanchard</blockquote>
+    """, unsafe_allow_html=True)
     name = st.text_input("Your Name", key="feedback_name")
     rating = st.slider("Rate your experience", 1, 5)
     comments = st.text_area("Any suggestions or issues?")
