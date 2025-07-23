@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import time
 
 # Initialize session state
@@ -7,29 +8,16 @@ if 'registered' not in st.session_state:
 if 'current_page' not in st.session_state:
     st.session_state.current_page = 'welcome'
 
-# Dummy partner list
+# Dummy partner list with realistic names
 partner_list = [
-    {"Name": "Alice", "University": "IIT Delhi", "Course": "UG", "Language": "English", "Knowledge Level": "Advanced", "Subject": "Maths", "Time Zone": "GMT+1"},
-    {"Name": "Bob", "University": "DERI", "Course": "PG", "Language": "Hindi", "Knowledge Level": "Intermediate", "Subject": "Physics", "Time Zone": "GMT+5.5"},
+    {"Name": "Aarav Mehta", "University": "IIT Delhi", "Course": "UG", "Language": "English", "Knowledge Level": "Advanced", "Subject": "Maths", "Time Zone": "GMT+1"},
+    {"Name": "Sara Khan", "University": "DERI", "Course": "PG", "Language": "Hindi", "Knowledge Level": "Intermediate", "Subject": "Physics", "Time Zone": "GMT+5.5"},
 ]
 
 universities = ["DERI", "IIT", "IIM", "International Universities", "Others"]
 courses = ["UG", "PG", "Professional", "PhD", "Others"]
 subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Others"]
-time_zones = ["GMT-12", "GMT-11", "GMT-10", "GMT-9", "GMT-8", "GMT-7", "GMT-6", "GMT-5", "GMT-4", "GMT-3", "GMT-2", "GMT-1", "GMT", "GMT+1", "GMT+2", "GMT+3", "GMT+4", "GMT+5", "GMT+5.5", "GMT+6", "GMT+7", "GMT+8", "GMT+9", "GMT+10", "GMT+11", "GMT+12"]
-
-# Sidebar after registration
-if st.session_state.registered:
-    with st.sidebar:
-        st.markdown("### Navigation")
-        if st.button("🎓 Teacher Assistant"):
-            st.session_state.current_page = 'teacher'
-        if st.button("🤝 Find Partner"):
-            st.session_state.current_page = 'partner'
-        if st.button("💳 Subscription"):
-            st.session_state.current_page = 'subscription'
-        if st.button("📝 Feedback"):
-            st.session_state.current_page = 'feedback'
+time_zones = [f"GMT{offset:+}" for offset in range(-12, 13)] + ["GMT+5.5"]
 
 # Welcome screen
 
@@ -47,44 +35,59 @@ def welcome_screen():
 # Registration interface
 
 def registration():
-    st.markdown("<h1 style='text-align: center;'>Student Registration</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "> 💡 \"The future belongs to those who prepare for it today.\" – Malcolm X")
-    name = st.text_input("Full Name")
-    email = st.text_input("Email")
-    gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-    timezone = st.selectbox("Your Time Zone", time_zones)
-    university = st.selectbox("University", universities)
-    if university == "Others":
-        university = st.text_input("Please specify your university")
-    course = st.selectbox("Course", courses)
-    if course == "Others":
-        course = st.text_input("Please specify your course")
-    goal = st.selectbox("Study Goal", [
-        "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam"])
-    language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
-    if language == "Other":
-        language = st.text_input("Please specify language")
-    uploaded_file = st.file_uploader("Upload Student ID (Optional)", type=["png", "jpg", "pdf"])
-    st.text("OR")
-    skip = st.checkbox("Skip for now")
+    st.markdown("""<h1 style='text-align: center;'>📝 Student Registration</h1>""", unsafe_allow_html=True)
+    with st.form("student_registration_form"):
+        name = st.text_input("Full Name")
+        email = st.text_input("Email")
+        gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+        timezone = st.selectbox("Your Time Zone", time_zones)
+        university = st.selectbox("University", universities)
+        if university == "Others":
+            university = st.text_input("Please specify your university")
+        course = st.selectbox("Course", courses)
+        if course == "Others":
+            course = st.text_input("Please specify your course")
+        goal = st.selectbox("Study Goal", [
+            "Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Competitive Exam", "Professional Exam"
+        ])
+        language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French", "Other"])
+        if language == "Other":
+            language = st.text_input("Please specify language")
+        uploaded_file = st.file_uploader("Upload Student ID (Optional)", type=["png", "jpg", "pdf"])
+        st.text("OR")
+        skip = st.checkbox("Skip for now")
 
-    if st.button("Register Now", key="register_now_center"):
-        if name:
-            st.session_state.registered = True
-            st.session_state.current_page = 'partner'
-            st.success(f"🎉 {name}, you have registered successfully!")
-            time.sleep(2)
-        else:
-            st.error("Please enter your name to register.")
+        submitted = st.form_submit_button("Register Now")
+        if submitted:
+            if name:
+                st.session_state.registered = True
+                st.session_state.current_page = 'menu'
+                st.success(f"🎉 {name}, you have registered successfully! 👍")
+                time.sleep(2)
+            else:
+                st.error("Please enter your name to register.")
+
+# Sidebar Menu after registration
+
+def menu():
+    st.sidebar.title("📚 Navigation")
+    option = st.sidebar.radio("Choose an Option:", [
+        "Find a Study Partner", "Teacher Assistant", "Subscription Plans", "Feedback"])
+
+    if option == "Find a Study Partner":
+        partner_matching()
+    elif option == "Teacher Assistant":
+        teacher_registration()
+    elif option == "Subscription Plans":
+        subscription_plans()
+    elif option == "Feedback":
+        feedback()
 
 # Study Partner Matching interface
 
 def partner_matching():
-    st.markdown("""
-    <h2>🔍 Find a Study Partner</h2>
-    <blockquote>"Alone we can do so little, together we can do so much." – Helen Keller</blockquote>
-    """, unsafe_allow_html=True)
+    st.header("👫 Find Study Partner")
+    st.markdown("> 📌 Stay consistent, your success is one study session away!")
     study_type = st.selectbox("Study Type", ["One-to-One", "Group Study"])
     partner_gender = st.selectbox("Preferred Partner Gender", ["Male", "Female", "Other"])
     partner_level = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
@@ -94,49 +97,44 @@ def partner_matching():
     partner_language = st.selectbox("Preferred Language", ["English", "Hindi", "Spanish", "French"])
     partner_timezone = st.selectbox("Partner's Time Zone", time_zones)
 
-    if st.button("Find Partner"):
+    if st.button("🔍 Find Partner"):
         st.success("Matching with partners...")
         time.sleep(2)
-        st.subheader("Matched Partners")
-        for partner in partner_list:
-            st.markdown(f"**{partner['Name']}** from **{partner['University']}** - {partner['Course']} | Subject: {partner['Subject']} | Language: {partner['Language']} | Knowledge Level: {partner['Knowledge Level']} | Time Zone: {partner['Time Zone']}")
+        st.subheader("🤝 Matched Partners")
+        st.dataframe(pd.DataFrame(partner_list))
 
 # Subscription Plans
 
 def subscription_plans():
-    st.markdown("""
-    <h2>📦 Subscription Plans</h2>
-    <blockquote>"An investment in knowledge pays the best interest." – Benjamin Franklin</blockquote>
-    """, unsafe_allow_html=True)
+    st.header("💳 Subscription Plans (₹)")
+    st.markdown("> ✨ Upgrade your access for more features!")
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.subheader("Basic Plan")
+        st.subheader("🟢 Basic Plan")
         st.markdown("Free Access to Study Partner Matching")
         if st.button("Choose Basic", key="basic_plan"):
-            st.success("You have subscribed to the Basic Plan!")
+            st.success("✅ You have subscribed to the Basic Plan!")
 
     with col2:
-        st.subheader("Premium Plan")
+        st.subheader("🔵 Premium Plan")
         st.markdown("₹499 - Access to Teachers + Study Planner + Reminders")
         if st.button("Choose Premium", key="premium_plan"):
             method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="premium_payment")
-            st.success(f"You have chosen the Premium Plan. Pay via {method} to proceed.")
+            st.success(f"✅ You have chosen the Premium Plan. Pay via {method} to proceed.")
 
     with col3:
-        st.subheader("Elite Plan")
+        st.subheader("🟣 Elite Plan")
         st.markdown("₹999 - Premium + Job Placement + Certificate + Feedback Sessions")
         if st.button("Choose Elite", key="elite_plan"):
             method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="elite_payment")
-            st.success(f"You have chosen the Elite Plan. Pay via {method} to proceed.")
+            st.success(f"✅ You have chosen the Elite Plan. Pay via {method} to proceed.")
 
 # Teacher Registration interface
 
 def teacher_registration():
-    st.markdown("""
-    <h2>👩‍🏫 Teacher Registration</h2>
-    <blockquote>"A good teacher can inspire hope, ignite the imagination, and instill a love of learning." – Brad Henry</blockquote>
-    """, unsafe_allow_html=True)
+    st.header("👩‍🏫 Teacher Registration")
+    st.markdown("> 🌟 Great teachers inspire great students.")
     name = st.text_input("Full Name", key="teacher_name")
     subject = st.selectbox("Subject Expertise", subjects, key="teacher_subject")
     hourly_fee = st.selectbox("Teaching Fee (per hour)", ["₹100", "₹250", "₹500", "₹1000"], key="teacher_fee")
@@ -149,23 +147,21 @@ def teacher_registration():
 
     if st.button("Register as Teacher", key="register_teacher"):
         if name:
-            st.success(f"{name}, you are successfully registered as a Teacher!")
+            st.success(f"🎓 {name}, you are successfully registered as a Teacher! 👏")
         else:
             st.error("Please enter your full name")
 
 # Feedback form
 
 def feedback():
-    st.markdown("""
-    <h2>📢 We value your feedback!</h2>
-    <blockquote>"Feedback is the breakfast of champions." – Ken Blanchard</blockquote>
-    """, unsafe_allow_html=True)
+    st.header("🗣️ We value your feedback!")
+    st.markdown("> 💬 Help us improve your study experience.")
     name = st.text_input("Your Name", key="feedback_name")
     rating = st.slider("Rate your experience", 1, 5)
     comments = st.text_area("Any suggestions or issues?")
 
-    if st.button("Submit Feedback"):
-        st.success("Thank you for your feedback!")
+    if st.button("📤 Submit Feedback"):
+        st.success("🙌 Thank you for your feedback!")
 
 # Page routing
 
@@ -173,11 +169,5 @@ if st.session_state.current_page == 'welcome':
     welcome_screen()
 elif st.session_state.current_page == 'register':
     registration()
-elif st.session_state.current_page == 'partner':
-    partner_matching()
-elif st.session_state.current_page == 'subscription':
-    subscription_plans()
-elif st.session_state.current_page == 'teacher':
-    teacher_registration()
-elif st.session_state.current_page == 'feedback':
-    feedback()
+elif st.session_state.current_page == 'menu':
+    menu()
