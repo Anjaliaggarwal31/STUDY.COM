@@ -1,13 +1,13 @@
 import streamlit as st
 import time
 
-# Global session state to manage transitions
+# Initialize session state
 if 'registered' not in st.session_state:
     st.session_state.registered = False
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'register'  # Directly go to registration
+    st.session_state.current_page = 'welcome'
 
-# Dummy partner list for demonstration
+# Dummy partner list
 partner_list = [
     {"Name": "Alice", "University": "IIT Delhi", "Course": "UG", "Language": "English", "Knowledge Level": "Advanced", "Subject": "Maths", "Time Zone": "GMT+1"},
     {"Name": "Bob", "University": "DERI", "Course": "PG", "Language": "Hindi", "Knowledge Level": "Intermediate", "Subject": "Physics", "Time Zone": "GMT+5.5"},
@@ -18,7 +18,20 @@ courses = ["UG", "PG", "Professional", "PhD", "Others"]
 subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Others"]
 time_zones = ["GMT-12", "GMT-11", "GMT-10", "GMT-9", "GMT-8", "GMT-7", "GMT-6", "GMT-5", "GMT-4", "GMT-3", "GMT-2", "GMT-1", "GMT", "GMT+1", "GMT+2", "GMT+3", "GMT+4", "GMT+5", "GMT+5.5", "GMT+6", "GMT+7", "GMT+8", "GMT+9", "GMT+10", "GMT+11", "GMT+12"]
 
+# Welcome screen
+def welcome_screen():
+    st.markdown("""
+        <h1 style='text-align:center; font-size: 50px;'>📘 StudySync</h1>
+        <h3 style='text-align:center; color: grey;'>"Empower Your Learning Journey – One Match at a Time"</h3>
+    """, unsafe_allow_html=True)
+    st.write("")
+    col = st.columns(3)
+    with col[1]:
+        if st.button("👉 Register Now", key="start_registration"):
+            st.session_state.current_page = 'register'
+
 # Registration interface
+
 def registration():
     st.markdown("<h1 style='text-align: center;'>Student Registration</h1>", unsafe_allow_html=True)
     name = st.text_input("Full Name")
@@ -49,6 +62,7 @@ def registration():
             st.error("Please enter your name to register.")
 
 # Study Partner Matching interface
+
 def partner_matching():
     st.header("Find Study Partner")
     study_type = st.selectbox("Study Type", ["One-to-One", "Group Study"])
@@ -67,7 +81,11 @@ def partner_matching():
         for partner in partner_list:
             st.markdown(f"**{partner['Name']}** from **{partner['University']}** - {partner['Course']} | Subject: {partner['Subject']} | Language: {partner['Language']} | Knowledge Level: {partner['Knowledge Level']} | Time Zone: {partner['Time Zone']}")
 
+    if st.button("Proceed to Subscription"):
+        st.session_state.current_page = 'subscription'
+
 # Subscription Plans
+
 def subscription_plans():
     st.header("Subscription Plans (₹)")
     col1, col2, col3 = st.columns(3)
@@ -92,7 +110,11 @@ def subscription_plans():
             method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="elite_payment")
             st.success(f"You have chosen the Elite Plan. Pay via {method} to proceed.")
 
+    if st.button("Proceed to Teacher Registration"):
+        st.session_state.current_page = 'teacher'
+
 # Teacher Registration interface
+
 def teacher_registration():
     st.header("Teacher Registration")
     name = st.text_input("Full Name", key="teacher_name")
@@ -111,14 +133,31 @@ def teacher_registration():
         else:
             st.error("Please enter your full name")
 
-# Main rendering logic
-if st.session_state.current_page == 'register':
+    if st.button("Proceed to Feedback"):
+        st.session_state.current_page = 'feedback'
+
+# Feedback form
+
+def feedback():
+    st.header("We value your feedback!")
+    name = st.text_input("Your Name", key="feedback_name")
+    rating = st.slider("Rate your experience", 1, 5)
+    comments = st.text_area("Any suggestions or issues?")
+
+    if st.button("Submit Feedback"):
+        st.success("Thank you for your feedback!")
+
+# Page routing
+
+if st.session_state.current_page == 'welcome':
+    welcome_screen()
+elif st.session_state.current_page == 'register':
     registration()
 elif st.session_state.current_page == 'partner':
     partner_matching()
-
-# Always display subscription and teacher registration on main interface
-st.markdown("---")
-subscription_plans()
-st.markdown("---")
-teacher_registration()
+elif st.session_state.current_page == 'subscription':
+    subscription_plans()
+elif st.session_state.current_page == 'teacher':
+    teacher_registration()
+elif st.session_state.current_page == 'feedback':
+    feedback()
