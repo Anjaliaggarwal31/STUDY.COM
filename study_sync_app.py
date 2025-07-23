@@ -5,7 +5,7 @@ import time
 if 'registered' not in st.session_state:
     st.session_state.registered = False
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'welcome'
+    st.session_state.current_page = 'register'  # Directly go to registration
 
 # Dummy partner list for demonstration
 partner_list = [
@@ -18,22 +18,9 @@ courses = ["UG", "PG", "Professional", "PhD", "Others"]
 subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer Science", "Others"]
 time_zones = ["GMT-12", "GMT-11", "GMT-10", "GMT-9", "GMT-8", "GMT-7", "GMT-6", "GMT-5", "GMT-4", "GMT-3", "GMT-2", "GMT-1", "GMT", "GMT+1", "GMT+2", "GMT+3", "GMT+4", "GMT+5", "GMT+5.5", "GMT+6", "GMT+7", "GMT+8", "GMT+9", "GMT+10", "GMT+11", "GMT+12"]
 
-# Welcome screen with animation and quote
-def welcome_screen():
-    st.markdown("""
-        <h1 style='text-align: center;'>📚 <span style='color:#6C63FF;'>StudySync</span> ⏳</h1>
-        <p style='text-align: center; font-style: italic;'>"Study smarter, not harder — together we achieve more."</p>
-        <div style='text-align: center; margin-top: 40px;'>
-            <button onclick="window.location.reload()">Click below to start registration</button>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("Register Now", key="go_to_register"):
-        st.session_state.current_page = 'register'
-
 # Registration interface
 def registration():
-    st.header("Student Registration")
+    st.markdown("<h1 style='text-align: center;'>Student Registration</h1>", unsafe_allow_html=True)
     name = st.text_input("Full Name")
     email = st.text_input("Email")
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
@@ -56,7 +43,7 @@ def registration():
         if name:
             st.session_state.registered = True
             st.session_state.current_page = 'partner'
-            st.success(f"{name}, you have registered successfully!")
+            st.success(f"🎉 {name}, you have registered successfully!")
             time.sleep(2)
         else:
             st.error("Please enter your name to register.")
@@ -95,15 +82,15 @@ def subscription_plans():
         st.subheader("Premium Plan")
         st.markdown("₹499 - Access to Teachers + Study Planner + Reminders")
         if st.button("Choose Premium", key="premium_plan"):
-            st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"])
-            st.success("You have chosen the Premium Plan. Proceed to payment.")
+            method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="premium_payment")
+            st.success(f"You have chosen the Premium Plan. Pay via {method} to proceed.")
 
     with col3:
         st.subheader("Elite Plan")
         st.markdown("₹999 - Premium + Job Placement + Certificate + Feedback Sessions")
         if st.button("Choose Elite", key="elite_plan"):
-            st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"])
-            st.success("You have chosen the Elite Plan. Proceed to payment.")
+            method = st.selectbox("Payment Method", ["UPI", "Bank Transfer", "Net Banking"], key="elite_payment")
+            st.success(f"You have chosen the Elite Plan. Pay via {method} to proceed.")
 
 # Teacher Registration interface
 def teacher_registration():
@@ -125,9 +112,7 @@ def teacher_registration():
             st.error("Please enter your full name")
 
 # Main rendering logic
-if st.session_state.current_page == 'welcome':
-    welcome_screen()
-elif st.session_state.current_page == 'register':
+if st.session_state.current_page == 'register':
     registration()
 elif st.session_state.current_page == 'partner':
     partner_matching()
