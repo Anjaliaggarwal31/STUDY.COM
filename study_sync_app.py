@@ -1,138 +1,123 @@
+# STUDYSYNC FULL APP - STREAMLIT
 import streamlit as st
-import pandas as pd
+import time
+from datetime import datetime
 
-# Initialize session state
-if 'points' not in st.session_state:
-    st.session_state.points = 0
-if 'registered' not in st.session_state:
-    st.session_state.registered = False
+# ----------------- APP CONFIGURATION -----------------
+st.set_page_config(page_title="StudySync", layout="centered")
 
-st.set_page_config(page_title="Study Sync", layout="wide")
-st.markdown("""
-    <style>
-        body { background-color: #f4f6f7; color: #1a237e; }
-        .main, .block-container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .big-font {
-            font-size: 24px !important;
-            font-weight: bold;
-            color: #1a237e;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# ----------------- INITIAL SPLASH SCREEN -----------------
+def splash_screen():
+    st.markdown("""
+        <h1 style='text-align: center; font-size: 60px;'>📘 StudySync</h1>
+        <p style='text-align: center; font-size: 20px;'>"Empowering Students Through Smart Collaboration"</p>
+    """, unsafe_allow_html=True)
+    time.sleep(2)
 
-# Distraction blocker simulation
-block_distraction = st.checkbox("🛡️ Block background distractions")
-if block_distraction:
-    st.warning("Distraction blocker active. You cannot switch apps while studying.")
-    confirm = st.radio("Are you sure you want to switch to another app?", ["No", "Yes"])
-    if confirm == "Yes":
-        st.error("Switching blocked while studying. Please disable blocker to switch.")
+# ----------------- TIMEZONES -----------------
+timezones = [
+    "Indian Standard Time (IST)", "Pacific Standard Time (PST)",
+    "Eastern Standard Time (EST)", "Central European Time (CET)",
+    "Greenwich Mean Time (GMT)", "China Standard Time (CST)",
+    "Japan Standard Time (JST)", "Other"
+]
 
-# Navigation logic
-if not st.session_state.registered:
-    page = "Register"
-else:
-    page = st.selectbox("📂 Choose Section", ["Find Study Partner", "Teacher Registration", "Subscriptions", "Feedback"])
+# ----------------- LANGUAGES -----------------
+languages = ["English", "Hindi", "Spanish", "French", "German", "Chinese", "Arabic", "Other"]
 
-# Student Registration
-if page == "Register":
-    st.title("📝 Student Registration")
-    with st.form("register_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            name = st.text_input("Full Name")
-            gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-            level = st.selectbox("Knowledge Level", ["Basic", "Intermediate", "Advanced"])
-            goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Preparation", "Exam Tomorrow", "Concept Clarity"])
-            mode = st.selectbox("Study Mode", ["One-to-One", "Group Study"])
-            course_type = st.selectbox("Course Type", ["UG", "PG", "Professional (CA, ACCA, CFA, CMA)", "PhD", "Other"])
-        with col2:
-            language = st.text_input("Preferred Language")
-            university = st.selectbox("University", ["IIT", "IIM", "DU", "NSUT", "IIIT-Delhi", "Oxford", "Harvard", "DERI", "MIT", "Other"])
-            timezone = st.selectbox("Timezone", ["IST (India)", "EST", "PST", "GMT", "CET", "AEST"])
-            duration = st.slider("Daily Study Duration (hours)", 1, 12, 2)
-            preferred_subjects = st.text_area("Subjects You Want to Study")
-        submit = st.form_submit_button("Register")
-        if submit:
-            if name and language and preferred_subjects:
-                st.session_state.registered = True
-                st.session_state.points += 10
-                st.success("✅ Registered Successfully! Let's find you a study partner.")
-            else:
-                st.error("❌ Registration failed. Please complete all fields.")
+# ----------------- UNIVERSITIES -----------------
+universities = ["DERI", "IITs", "IIMs", "Harvard", "Oxford", "Stanford", "Other"]
 
-# Study Partner Matching
-if page == "Find Study Partner":
-    st.title("🔍 Find Your Study Partner")
-    with st.form("match_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            partner_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female"])
-            partner_level = st.selectbox("Partner's Knowledge Level", ["Any", "Basic", "Intermediate", "Advanced"])
-            partner_lang = st.text_input("Preferred Partner Language")
-        with col2:
-            study_subject = st.text_input("Study Subject")
-            mode = st.radio("Study Mode", ["Audio", "Video", "Recording Upload", "Chat Only"])
-            time_zone = st.selectbox("Preferred Partner Timezone", ["IST", "EST", "PST", "GMT", "CET", "AEST"])
-        matched = st.form_submit_button("Search Partner")
-        if matched:
-            st.success("🎉 Partner matched successfully based on your preferences!")
-            st.info("👥 Matched Partner List:\n- Alex (Advanced, IST)\n- Priya (Intermediate, GMT)")
-            st.session_state.points += 20
+# ----------------- COURSES -----------------
+courses = ["Undergraduate", "Postgraduate", "PhD", "CA", "CFA", "CMA", "ACCA", "Other"]
 
-# Teacher Registration
-if page == "Teacher Registration":
-    st.title("👨‍🏫 Teacher Registration")
-    with st.form("teacher_form"):
+# ----------------- TEACHER FEE OPTIONS -----------------
+fee_options = ["INR 500/month", "INR 1000/month", "USD 20/month", "USD 50/month", "Other"]
+
+# ----------------- SUBSCRIPTION PLANS -----------------
+def subscription_plans():
+    st.subheader("📦 Subscription Plans")
+    plans = {
+        "Free": ["Basic Partner Matching", "Daily Study Reminders"],
+        "Premium - ₹499/month": ["Access to Teachers", "Job Placement Support", "Detailed Preparation Modes"],
+        "Elite - ₹999/month": ["One-on-One Coaching", "Distraction Blocker", "Certificate of Collaboration"]
+    }
+    for plan, benefits in plans.items():
+        with st.expander(plan):
+            for b in benefits:
+                st.markdown(f"- {b}")
+
+# ----------------- STUDENT REGISTRATION -----------------
+def student_registration():
+    st.subheader("👨‍🎓 Student Registration")
+    with st.form("student_form"):
         name = st.text_input("Full Name")
-        university = st.text_input("University/Institute")
-        subject = st.text_input("Subjects you can teach")
-        experience = st.slider("Years of Teaching Experience", 0, 40, 2)
-        charges = st.text_input("Fee (e.g., ₹500/hour or $20/hour)")
-        availability = st.selectbox("Availability", ["Weekdays", "Weekends", "Evenings", "Anytime"])
-        submit_teacher = st.form_submit_button("Register as Teacher")
-        if submit_teacher:
-            if name and university and subject and charges:
-                st.success("✅ Teacher registered! Students can now view your profile.")
-            else:
-                st.error("❌ Registration failed. Please fill all fields.")
+        email = st.text_input("Email")
+        gender = st.radio("Gender", ["Male", "Female", "Other"])
+        timezone = st.selectbox("Your Time Zone", timezones)
+        university = st.selectbox("Your University", universities)
+        course = st.selectbox("Course Type", courses)
+        id_upload = st.file_uploader("Upload Student ID (PDF or Image)")
+        block_distractions = st.checkbox("🔒 Block other activities while studying")
+        submitted = st.form_submit_button("Register")
 
-# Subscriptions
-if page == "Subscriptions":
-    st.title("💎 Subscription Plans")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.subheader("Free Plan")
-        st.write("✔ Basic Matching")
-        st.write("✔ Weekly Tips")
-    with col2:
-        st.subheader("Pro Plan ₹499/month")
-        st.write("✔ Teacher Access")
-        st.write("✔ Mock Tests & Materials")
-    with col3:
-        st.subheader("Premium $49/year")
-        st.write("✔ Job Support")
-        st.write("✔ Personalized Feedback")
-    if st.button("🚀 Subscribe"):
-        st.success("🎯 Subscription successful!")
-        st.session_state.points += 50
+    if submitted:
+        if name and email and university:
+            st.success("✅ Registration Successful! Redirecting to Partner Matching...")
+            time.sleep(2)
+            st.session_state.registered = True
+        else:
+            st.error("❌ Please fill all required fields.")
 
-# Feedback
-if page == "Feedback":
-    st.title("📢 Feedback")
-    with st.form("feedback_form"):
-        rating = st.slider("Session Rating", 1, 5, 3)
-        comments = st.text_area("Your Comments")
-        submitted = st.form_submit_button("Submit Feedback")
-        if submitted:
-            st.success("✅ Feedback received. Thank you!")
-            st.session_state.points += 5
+# ----------------- PARTNER MATCHING -----------------
+def partner_matching():
+    st.subheader("🔍 Find a Study Partner")
+    with st.form("partner_form"):
+        study_mode = st.radio("Study Mode", ["1-on-1", "Group Study"])
+        pref_gender = st.radio("Preferred Partner Gender", ["Any", "Male", "Female"])
+        pref_language = st.selectbox("Preferred Language", languages)
+        knowledge_level = st.selectbox("Partner Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
+        study_goal = st.selectbox("Study Goal", ["Crash Revision", "Detailed Preparation"])
+        match = st.form_submit_button("Find Partner")
+    if match:
+        st.success("🎉 Partner Found Successfully!")
+        st.info("Stay consistent for 1 week to unlock achievement badge!")
 
-# Footer
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: #1a237e;'>Study smart. Connect. Achieve. 🚀</p>", unsafe_allow_html=True)
+# ----------------- TEACHER REGISTRATION -----------------
+def teacher_registration():
+    st.subheader("👩‍🏫 Teacher Registration")
+    with st.form("teacher_form"):
+        t_name = st.text_input("Teacher Name")
+        t_university = st.selectbox("University Affiliation", universities)
+        t_subjects = st.text_input("Subjects You Teach")
+        t_duration = st.selectbox("Preferred Teaching Duration (daily)", ["1 hour", "2 hours", "3 hours", "Other"])
+        t_fee = st.selectbox("Expected Monthly Fee", fee_options)
+        t_currency = st.selectbox("Currency", ["INR", "USD", "EUR", "Other"])
+        t_available = st.radio("Are you currently available to teach?", ["Yes", "No"])
+        t_submit = st.form_submit_button("Register as Teacher")
+    if t_submit:
+        if t_name and t_subjects:
+            st.success("🎓 Teacher Profile Registered Successfully!")
+        else:
+            st.error("Please provide all required information.")
+
+# ----------------- MAIN INTERFACE FLOW -----------------
+def main_app():
+    splash_screen()
+
+    if "registered" not in st.session_state:
+        student_registration()
+    elif st.session_state.registered:
+        tab1, tab2, tab3 = st.tabs(["Partner Matching", "Teacher Zone", "Subscriptions"])
+
+        with tab1:
+            partner_matching()
+
+        with tab2:
+            teacher_registration()
+
+        with tab3:
+            subscription_plans()
+
+# ----------------- RUN APP -----------------
+main_app()
