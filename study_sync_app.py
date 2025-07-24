@@ -241,6 +241,15 @@ if menu == "🤝 Find a Partner":
                         "TimeZone": final_timezone
                     }
                     st.session_state.matched = True
+
+                    # SAVE TO CSV
+                    match_df = matches_to_show.copy()
+                    match_df["MatchedBy"] = st.session_state.user_email
+                    if os.path.exists("matched_partners.csv"):
+                        match_df.to_csv("matched_partners.csv", mode="a", index=False, header=False)
+                    else:
+                        match_df.to_csv("matched_partners.csv", index=False)
+
                     if not matches_to_show.empty:
                         st.subheader("🎯 Your Matched Study Partners")
                         show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
