@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import random
 
 st.set_page_config(page_title="StudySync App", layout="wide")
 
@@ -20,28 +21,39 @@ st.markdown("""
     <h4 style='text-align: center; color: gray;'>"Study alone if you must, but find your tribe and learn faster."</h4>
 """, unsafe_allow_html=True)
 
-# Always show all options
 menu = st.sidebar.radio("📌 Navigation", 
     ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"],
     index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"].index(st.session_state.menu)
 )
 st.session_state.menu = menu
 
-# Dummy partner data for matching
+# Generate random Indian-style dummy partner data
 def generate_dummy_partners():
-    return pd.DataFrame([
-        {"Name": "Riya", "Gender": "Female", "Knowledge": "Advanced", "Subject": "Maths", "TimeZone": "IST", "Language": "English"},
-        {"Name": "Kunal", "Gender": "Male", "Knowledge": "Beginner", "Subject": "Science", "TimeZone": "EST", "Language": "Hindi"},
-        {"Name": "Lara", "Gender": "Female", "Knowledge": "Intermediate", "Subject": "English", "TimeZone": "UTC", "Language": "English"},
-        {"Name": "Aman", "Gender": "Male", "Knowledge": "Advanced", "Subject": "CS", "TimeZone": "IST", "Language": "Hindi"},
-    ])
+    names = ["Aarav", "Vivaan", "Diya", "Anaya", "Rohan", "Priya", "Saanvi", "Kabir", "Ishita", "Dev", "Tanvi", "Meera", "Reyansh", "Tara"]
+    genders = ["Male", "Female"]
+    knowledge_levels = ["Beginner", "Intermediate", "Advanced"]
+    subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts"]
+    languages = ["English", "Hindi"]
+    timezones = ["IST", "UTC", "EST", "PST"]
 
-# Home Page
+    data = []
+    for _ in range(25):
+        data.append({
+            "Name": random.choice(names),
+            "Gender": random.choice(genders),
+            "Knowledge": random.choice(knowledge_levels),
+            "Subject": random.choice(subjects),
+            "TimeZone": random.choice(timezones),
+            "Language": random.choice(languages)
+        })
+    return pd.DataFrame(data)
+
+# Home
 if menu == "🏠 Home":
     st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
     st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
 
-# Registration Form
+# Registration
 if menu == "📝 Register":
     with st.form("register_form"):
         name = st.text_input("Full Name *")
@@ -80,7 +92,7 @@ if menu == "📝 Register":
             st.session_state.menu = "🤝 Find a Partner"
             st.rerun()
 
-# Find Partner Form
+# Partner Match
 if menu == "🤝 Find a Partner":
     with st.form("find_partner_form"):
         partner_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
@@ -114,7 +126,7 @@ if menu == "🤝 Find a Partner":
             ]
             if not results.empty:
                 st.session_state.partners = results.to_dict("records")
-                st.success("✅ Match found!")
+                st.success(f"✅ Found {len(results)} matching partner(s)!")
             else:
                 st.session_state.partners = []
                 st.warning("No exact match found. Try relaxing your filters.")
