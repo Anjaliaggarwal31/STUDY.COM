@@ -25,13 +25,12 @@ def init_session():
 
 init_session()
 
-# App Header
+# Header
 st.markdown("""
     <h1 style='text-align: center;'>🚀 StudySync</h1>
-    <h4 style='text-align: center; color: gray;'>"Study alone if you must, but find your tribe and learn faster."</h4>
 """, unsafe_allow_html=True)
 
-# Sidebar Menu
+# Sidebar Navigation
 menu = st.sidebar.radio("📌 Navigation", 
     ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"],
     index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"].index(st.session_state.menu)
@@ -58,6 +57,19 @@ def generate_dummy_partners():
             "TimeZone": random.choice(timezones)
         })
     return pd.DataFrame(data)
+
+# Quotes per page
+quotes = {
+    "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
+    "📝 Register": "“Your journey to better learning begins with a simple registration.”",
+    "🤝 Find a Partner": "“A study partner turns the impossible into achievable.”",
+    "💼 Subscription Plans": "“Invest in learning — it pays the best interest.”",
+    "👩‍🏫 Teacher Registration": "“Great teachers build better learners.”",
+    "🎯 Matched Partners": "“Two minds studying together go further than one.”",
+    "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
+}
+
+st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
 # 🏠 Home
 if menu == "🏠 Home":
