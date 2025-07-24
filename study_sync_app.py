@@ -22,27 +22,27 @@ def init_session():
         st.session_state.user_details = {}
 init_session()
 
-# Header and welcome message
+# App Header
 st.markdown("""
     <h1 style='text-align: center;'>🚀 StudySync</h1>
     <h4 style='text-align: center; color: gray;'>"Study alone if you must, but find your tribe and learn faster."</h4>
 """, unsafe_allow_html=True)
 
-# Sidebar menu
+# Sidebar Menu
 menu = st.sidebar.radio("📌 Navigation", 
     ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"],
     index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"].index(st.session_state.menu)
 )
 st.session_state.menu = menu
 
-# Dummy partner generator
+# Dummy Partner Generator
 def generate_dummy_partners():
     names = ["Disha", "Kartik", "Harsh", "Mehak", "Aarav", "Anaya", "Ishaan", "Riya", "Kabir", "Tanvi", "Yash", "Sneha", "Ved", "Simran"]
-    genders = ["Male", "Female", "Others"]
+    genders = ["Male", "Female"]
     knowledge_levels = ["Beginner", "Intermediate", "Advanced"]
-    subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"]
-    languages = ["English", "Hindi", "Other"]
-    timezones = ["IST", "UTC", "EST", "PST", "Others"]
+    subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts"]
+    languages = ["English", "Hindi"]
+    timezones = ["IST", "UTC", "EST", "PST"]
 
     data = []
     for _ in range(50):
@@ -109,7 +109,7 @@ if menu == "📝 Register":
                     "ID_uploaded": uploaded_id.name
                 }
                 st.session_state.registered = True
-                st.success(f"🎉 Congratulations **{name}**, you have successfully registered!")
+                st.success(f"🎉 Thank you for registering with us, **{name}**!")
                 st.balloons()
                 st.session_state.menu = "🤝 Find a Partner"
                 st.rerun()
@@ -118,56 +118,59 @@ if menu == "📝 Register":
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
-    with st.form("partner_form"):
-        gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
-        gender_other = st.text_input("Specify partner gender *") if gender == "Others" else ""
-        final_gender = gender_other if gender == "Others" else gender
+    if not st.session_state.registered:
+        st.warning("Please register first to find a partner.")
+    else:
+        with st.form("partner_form"):
+            gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
+            gender_other = st.text_input("Specify partner gender *") if gender == "Others" else ""
+            final_gender = gender_other if gender == "Others" else gender
 
-        knowledge = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
+            knowledge = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
 
-        subject = st.selectbox("Subject to Study *", ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"])
-        subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
-        final_subject = subject_other if subject == "Others" else subject
+            subject = st.selectbox("Subject to Study *", ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"])
+            subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
+            final_subject = subject_other if subject == "Others" else subject
 
-        language = st.selectbox("Partner's Language", ["English", "Hindi", "Other"])
-        language_other = st.text_input("Specify partner language *") if language == "Other" else ""
-        final_language = language_other if language == "Other" else language
+            language = st.selectbox("Partner's Language", ["English", "Hindi", "Other"])
+            language_other = st.text_input("Specify partner language *") if language == "Other" else ""
+            final_language = language_other if language == "Other" else language
 
-        timezone = st.selectbox("Partner's Time Zone", ["IST", "UTC", "EST", "PST", "Others"])
-        timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
-        final_timezone = timezone_other if timezone == "Others" else timezone
+            timezone = st.selectbox("Partner's Time Zone", ["IST", "UTC", "EST", "PST", "Others"])
+            timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
+            final_timezone = timezone_other if timezone == "Others" else timezone
 
-        search = st.form_submit_button("Find Matches")
+            search = st.form_submit_button("Find Matches")
 
-        if search:
-            df = generate_dummy_partners()
+            if search:
+                df = generate_dummy_partners()
 
-            filtered = df[
-                ((df["Gender"] == final_gender) | (final_gender == "Any")) &
-                (df["Knowledge"] == knowledge) &
-                (df["Subject"].str.lower() == final_subject.lower()) &
-                (df["Language"] == final_language) &
-                (df["TimeZone"] == final_timezone)
-            ]
+                filtered = df[
+                    ((df["Gender"] == final_gender) | (final_gender == "Any")) &
+                    (df["Knowledge"] == knowledge) &
+                    (df["Subject"].str.lower() == final_subject.lower()) &
+                    (df["Language"] == final_language) &
+                    (df["TimeZone"] == final_timezone)
+                ]
 
-            if filtered.empty:
-                st.warning("No exact matches found, showing approximate matches.")
-                filtered = df[df["Knowledge"] == knowledge].sample(3)
+                if filtered.empty:
+                    st.warning("No exact matches found, showing approximate matches.")
+                    filtered = df[df["Knowledge"] == knowledge].sample(3)
 
-            st.session_state.partners = filtered.to_dict("records")
-            st.session_state.partner_filters = {
-                "Gender": None if final_gender == "Any" else final_gender,
-                "Knowledge": knowledge,
-                "Subject": final_subject,
-                "Language": final_language,
-                "TimeZone": final_timezone
-            }
-            st.session_state.matched = True
+                st.session_state.partners = filtered.to_dict("records")
+                st.session_state.partner_filters = {
+                    "Gender": None if final_gender == "Any" else final_gender,
+                    "Knowledge": knowledge,
+                    "Subject": final_subject,
+                    "Language": final_language,
+                    "TimeZone": final_timezone
+                }
+                st.session_state.matched = True
 
-            st.success(f"✅ Found {len(filtered)} partner(s) matching your preference!")
-            st.subheader("🎯 Your Matched Study Partners")
-            show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val]
-            st.table(filtered[show_cols])
+                st.success(f"✅ Found {len(filtered)} partner(s) matching your preference!")
+                st.subheader("🎯 Your Matched Study Partners")
+                show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
+                st.table(filtered[show_cols])
 
 # 🎯 Matched Partners
 if menu == "🎯 Matched Partners":
@@ -175,7 +178,7 @@ if menu == "🎯 Matched Partners":
         st.subheader("🎯 Your Matched Study Partners")
         df = pd.DataFrame(st.session_state.partners)
         filters = st.session_state.partner_filters
-        show_cols = ["Name"] + [col for col, val in filters.items() if val]
+        show_cols = ["Name"] + [col for col, val in filters.items() if val and val != "Others"]
         st.table(df[show_cols])
     else:
         st.info("You don't have any matches yet. Go to 'Find a Partner' to search.")
@@ -254,4 +257,7 @@ if menu == "👩‍🏫 Teacher Registration":
 
         t_submit = st.form_submit_button("Register as Teacher")
         if t_submit:
-            st.success("✅ Teacher registered successfully! We will contact you soon.")
+            if tname and subject and t_id:
+                st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
+            else:
+                st.error("Please fill all required fields.")
