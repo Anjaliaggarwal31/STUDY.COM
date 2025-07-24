@@ -136,17 +136,32 @@ if menu == "🤝 Find a Partner":
             if filtered_df.empty:
                 filtered_df = df[df.Knowledge == partner_knowledge].sample(3)
 
+            # Save both data and preference-based columns to session
             st.session_state.partners = filtered_df.to_dict("records")
+            st.session_state.partner_filters = {
+                "Gender": final_partner_gender if final_partner_gender != "Any" else None,
+                "Knowledge": partner_knowledge,
+                "Subject": final_subject,
+                "Language": final_partner_language,
+                "TimeZone": final_partner_timezone
+            }
             st.session_state.matched = True
+
             st.success(f"✅ Found {len(filtered_df)} partner(s) matching your preference!")
             st.subheader("🎯 Your Matched Study Partners")
-            st.table(filtered_df)
+
+            # Show only selected filter columns
+            columns_to_show = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val]
+            st.table(filtered_df[columns_to_show])
 
 # Matched Partner Table
 if menu == "🎯 Matched Partners":
     if st.session_state.partners:
         st.subheader("🎯 Your Matched Study Partners")
-        st.table(pd.DataFrame(st.session_state.partners))
+        df = pd.DataFrame(st.session_state.partners)
+        filters = st.session_state.get("partner_filters", {})
+        columns_to_show = ["Name"] + [col for col, val in filters.items() if val]
+        st.table(df[columns_to_show])
     else:
         st.info("You don't have any matches yet. Go to 'Find a Partner' to search.")
 
