@@ -16,6 +16,8 @@ def init_session():
         st.session_state.menu = "🏠 Home"
     if "partner_filters" not in st.session_state:
         st.session_state.partner_filters = {}
+    if "selected_plan" not in st.session_state:
+        st.session_state.selected_plan = None
 init_session()
 
 # Header and quote
@@ -121,8 +123,6 @@ if menu == "🤝 Find a Partner":
 
         if partner_submit:
             df = generate_dummy_partners()
-
-            # Apply full filtering
             filtered_df = df[
                 ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
                 (df.Knowledge == partner_knowledge) &
@@ -131,7 +131,6 @@ if menu == "🤝 Find a Partner":
                 (df.TimeZone == final_partner_timezone)
             ]
 
-            # Loosen filter if empty
             if filtered_df.empty:
                 filtered_df = df[
                     ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
@@ -168,33 +167,36 @@ if menu == "🎯 Matched Partners":
     else:
         st.info("You don't have any matches yet. Go to 'Find a Partner' to search.")
 
-# 💼 Subscription Plans
+# 💼 Subscription Plans with Payment
 if menu == "💼 Subscription Plans":
     st.subheader("💼 Subscription Tiers")
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        st.markdown("""
-        ### 🟢 Basic Plan — ₹0  
-        - Find Study Partners  
-        - Set Goals & Preferences  
-        - Access Notes  
-        """)
+        if st.button("🟢 Basic Plan — ₹0"):
+            st.session_state.selected_plan = "Basic"
     with col2:
-        st.markdown("""
-        ### 🔵 Premium Plan — ₹499  
-        - Everything in Basic  
-        - Access to Teachers  
-        - Chat/Video Support  
-        - Custom Reminders  
-        """)
+        if st.button("🔵 Premium Plan — ₹499"):
+            st.session_state.selected_plan = "Premium"
     with col3:
-        st.markdown("""
-        ### 🔴 Elite Plan — ₹999  
-        - Everything in Premium  
-        - Job Placement Assistance  
-        - Personalized Coaching  
-        - Certificate of Completion  
-        """)
+        if st.button("🔴 Elite Plan — ₹999"):
+            st.session_state.selected_plan = "Elite"
+
+    if st.session_state.selected_plan:
+        st.markdown(f"### Proceed to Payment for {st.session_state.selected_plan} Plan")
+        payment_method = st.radio("Choose Payment Method", ["UPI", "Credit/Debit Card", "PayPal"])
+        if payment_method == "UPI":
+            st.text_input("Enter UPI ID")
+        elif payment_method == "Credit/Debit Card":
+            st.text_input("Card Number")
+            st.text_input("Card Holder Name")
+            st.text_input("Expiry Date (MM/YY)")
+            st.text_input("CVV")
+        elif payment_method == "PayPal":
+            st.text_input("PayPal Email")
+
+        if st.button("Pay Now"):
+            st.success(f"✅ Payment successful! You’ve subscribed to the {st.session_state.selected_plan} Plan.")
 
 # 👩‍🏫 Teacher Registration
 if menu == "👩‍🏫 Teacher Registration":
