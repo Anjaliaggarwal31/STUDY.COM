@@ -56,7 +56,7 @@ def generate_dummy_partners():
         })
     return pd.DataFrame(data)
 
-# Quotes per page
+# Quotes
 quotes = {
     "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
     "📝 Register": "“Your journey to better learning begins with a simple registration.”",
@@ -67,41 +67,65 @@ quotes = {
 }
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
-# 🏠 Home
+# Home
 if menu == "🏠 Home":
     st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
     st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
 
-# 📝 Register
+# Register
 if menu == "📝 Register":
     reg_type = st.radio("Register as", ["Student", "Teacher"])
+
+    def check_required(field, label):
+        if field.strip() == "":
+            st.error(f"Please specify your {label} as required.")
+            return False
+        return True
 
     if reg_type == "Student":
         with st.form("student_form"):
             name = st.text_input("Full Name *")
             email = st.text_input("Email *")
+
             gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
-            gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
-            final_gender = gender_other if gender == "Others" else gender
+            gender_other = st.text_input("Specify your gender *") if gender == "Others" else ""
+
             university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
-            university_other = st.text_input("Please specify your university *") if university == "Others" else ""
-            final_university = university_other if university == "Others" else university
+            university_other = st.text_input("Specify your university *") if university == "Others" else ""
+
             course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
-            course_other = st.text_input("Please specify your course *") if course == "Others" else ""
-            final_course = course_other if course == "Others" else course
+            course_other = st.text_input("Specify your course *") if course == "Others" else ""
+
             timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
-            timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
-            final_timezone = timezone_other if timezone == "Others" else timezone
+            timezone_other = st.text_input("Specify your time zone *") if timezone == "Others" else ""
+
             study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
-            custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
+            custom_goal = st.text_input("Specify your goal *") if "Others" in study_goal else ""
+
             language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Other"])
-            language_other = st.text_input("Please specify your language *") if language == "Other" else ""
-            final_language = language_other if language == "Other" else language
+            language_other = st.text_input("Specify your language *") if language == "Other" else ""
+
             mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
             uploaded_id = st.file_uploader("Upload Your ID (Optional)")
             submitted = st.form_submit_button("Submit")
+
+            final_gender = gender_other if gender == "Others" else gender
+            final_university = university_other if university == "Others" else university
+            final_course = course_other if course == "Others" else course
+            final_timezone = timezone_other if timezone == "Others" else timezone
+            final_language = language_other if language == "Other" else language
+
             if submitted:
-                if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option":
+                if not all([name, email]) or final_gender == "Select an option" or final_university == "Select an option" or final_course == "Select an option" or final_timezone == "Select an option" or final_language == "Select an option":
+                    st.error("⚠️ Please fill all required fields marked with *")
+                elif (gender == "Others" and not check_required(gender_other, "gender")) or \
+                     (university == "Others" and not check_required(university_other, "university")) or \
+                     (course == "Others" and not check_required(course_other, "course")) or \
+                     (timezone == "Others" and not check_required(timezone_other, "time zone")) or \
+                     (language == "Other" and not check_required(language_other, "language")) or \
+                     ("Others" in study_goal and not check_required(custom_goal, "goal")):
+                    pass
+                else:
                     st.session_state.user_details = {
                         "Name": name,
                         "Email": email,
@@ -119,8 +143,6 @@ if menu == "📝 Register":
                     st.balloons()
                     st.session_state.menu = "🤝 Find a Partner"
                     st.rerun()
-                else:
-                    st.error("⚠️ Please fill all required fields marked with *")
 
     elif reg_type == "Teacher":
         with st.form("teacher_form"):
@@ -137,10 +159,15 @@ if menu == "📝 Register":
             t_id = st.file_uploader("Upload your ID (Optional)")
             t_submit = st.form_submit_button("Register as Teacher")
             if t_submit:
-                if tname and subject:
-                    st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
-                else:
+                if not tname or not subject:
                     st.error("Please fill all required fields.")
+                elif university == "Other" and not check_required(university_other, "university"):
+                    pass
+                elif status == "Other" and not check_required(status_other, "status"):
+                    pass
+                else:
+                    st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
+
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
