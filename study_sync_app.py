@@ -133,14 +133,28 @@ if menu == "🤝 Find a Partner":
             search = st.form_submit_button("Find Matches")
             if search:
                 df = generate_dummy_partners()
-                filtered = df[
+                exact_matches = df[
                     ((df["Gender"] == final_gender) | (final_gender == "Any")) &
                     (df["Knowledge"] == knowledge) &
                     (df["Subject"].str.lower() == final_subject.lower()) &
                     (df["Language"] == final_language) &
                     (df["TimeZone"] == final_timezone)
                 ]
-                st.session_state.partners = filtered.to_dict("records")
+                if not exact_matches.empty:
+                    st.success(f"✅ Found {len(exact_matches)} exact partner(s) matching your preference!")
+                    matches_to_show = exact_matches
+                else:
+                    similar_matches = df[
+                        ((df["Gender"] == final_gender) | (final_gender == "Any")) &
+                        (df["Knowledge"] == knowledge) &
+                        ((df["Subject"].str.lower() == final_subject.lower()) |
+                         (df["Language"] == final_language) |
+                         (df["TimeZone"] == final_timezone))
+                    ]
+                    st.warning("😕 Oops! No exact match found. But here are some similar partners you might like:")
+                    matches_to_show = similar_matches
+
+                st.session_state.partners = matches_to_show.to_dict("records")
                 st.session_state.partner_filters = {
                     "Gender": None if final_gender == "Any" else final_gender,
                     "Knowledge": knowledge,
@@ -149,13 +163,13 @@ if menu == "🤝 Find a Partner":
                     "TimeZone": final_timezone
                 }
                 st.session_state.matched = True
-                st.success(f"✅ Found {len(filtered)} partner(s) matching your preference!")
-                if not filtered.empty:
+
+                if not matches_to_show.empty:
                     st.subheader("🎯 Your Matched Study Partners")
                     show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
-                    st.table(filtered[show_cols])
+                    st.table(matches_to_show[show_cols])
                 else:
-                    st.warning("No matches found for the selected criteria.")
+                    st.error("Still couldn't find anyone close to your preferences. Try changing your filters.")
 
 # 🎯 Matched Partners
 if menu == "🎯 Matched Partners":
