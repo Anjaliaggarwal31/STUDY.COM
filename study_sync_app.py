@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
+import os
 
 st.set_page_config(page_title="StudySync App", layout="wide")
 
@@ -22,6 +23,16 @@ def init_session():
         st.session_state.user_details = {}
     if "feedbacks" not in st.session_state:
         st.session_state.feedbacks = []
+    if "user_email" not in st.session_state:
+        st.session_state.user_email = None
+
+    # Load user if email provided
+    if os.path.exists("registered_users.csv") and st.session_state.user_email:
+        df = pd.read_csv("registered_users.csv")
+        if st.session_state.user_email in df["Email"].values:
+            user_row = df[df["Email"] == st.session_state.user_email].iloc[0]
+            st.session_state.user_details = user_row.to_dict()
+            st.session_state.registered = True
 
 init_session()
 
@@ -35,6 +46,17 @@ menu = st.sidebar.radio("📌 Navigation",
 )
 st.session_state.menu = menu
 
+# Quotes
+quotes = {
+    "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
+    "📝 Register": "“Your journey to better learning begins with a simple registration.”",
+    "🤝 Find a Partner": "“A study partner turns the impossible into achievable.”",
+    "💼 Subscription Plans": "“Invest in learning — it pays the best interest.”",
+    "🎯 Matched Partners": "“Two minds studying together go further than one.”",
+    "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
+}
+st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
+
 # Dummy Partner Generator
 def generate_dummy_partners():
     names = ["Disha", "Kartik", "Harsh", "Mehak", "Aarav", "Anaya", "Ishaan", "Riya", "Kabir", "Tanvi", "Yash", "Sneha", "Ved", "Simran"]
@@ -43,7 +65,6 @@ def generate_dummy_partners():
     subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts"]
     languages = ["English", "Hindi"]
     timezones = ["IST", "UTC", "EST", "PST"]
-
     data = []
     for _ in range(50):
         data.append({
@@ -56,26 +77,29 @@ def generate_dummy_partners():
         })
     return pd.DataFrame(data)
 
-# Quotes per page
-quotes = {
-    "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
-    "📝 Register": "“Your journey to better learning begins with a simple registration.”",
-    "🤝 Find a Partner": "“A study partner turns the impossible into achievable.”",
-    "💼 Subscription Plans": "“Invest in learning — it pays the best interest.”",
-    "🎯 Matched Partners": "“Two minds studying together go further than one.”",
-    "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
-}
-st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
-
 # 🏠 Home
 if menu == "🏠 Home":
     st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
     st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
+    if not st.session_state.registered:
+        email_input = st.text_input("🔐 Already Registered? Enter your Email:")
+        if email_input:
+            if os.path.exists("registered_users.csv"):
+                df = pd.read_csv("registered_users.csv")
+                if email_input in df["Email"].values:
+                    st.session_state["user_email"] = email_input
+                    st.rerun()
+                else:
+                    st.warning("Email not found. Please register first.")
 
 # 📝 Register
 if menu == "📝 Register":
-    reg_type = st.radio("Register as", ["Student", "Teacher"])
+    if st.session_state.registered:
+        st.success(f"You are already registered as **{st.session_state.user_details.get('Name', '')}**.")
+        st.info("No need to register again. Go to 'Find a Partner' or 'Matched Partners'.")
+        st.stop()
 
+    reg_type = st.radio("Register as", ["Student", "Teacher"])
     if reg_type == "Student":
         with st.form("student_form"):
             name = st.text_input("Full Name *")
@@ -100,21 +124,34 @@ if menu == "📝 Register":
             mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
             uploaded_id = st.file_uploader("Upload Your ID (Optional)")
             submitted = st.form_submit_button("Submit")
+
             if submitted:
                 if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option":
-                    st.session_state.user_details = {
+                    user_data = {
                         "Name": name,
                         "Email": email,
                         "Gender": final_gender,
                         "University": final_university,
                         "Course": final_course,
                         "Timezone": final_timezone,
-                        "Goal": study_goal + ([custom_goal] if custom_goal else []),
+                        "Goal": "|".join(study_goal + ([custom_goal] if custom_goal else [])),
                         "Language": final_language,
-                        "Mode": mode,
+                        "Mode": "|".join(mode),
                         "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided"
                     }
+                    st.session_state.user_details = user_data
                     st.session_state.registered = True
+                    st.session_state["user_email"] = email
+
+                    # Save to file
+                    if os.path.exists("registered_users.csv"):
+                        df_existing = pd.read_csv("registered_users.csv")
+                        if email not in df_existing["Email"].values:
+                            df_existing = df_existing.append(user_data, ignore_index=True)
+                            df_existing.to_csv("registered_users.csv", index=False)
+                    else:
+                        pd.DataFrame([user_data]).to_csv("registered_users.csv", index=False)
+
                     st.success(f"🎉 Thank you for registering with us, **{name}**!")
                     st.balloons()
                     st.session_state.menu = "🤝 Find a Partner"
@@ -162,6 +199,7 @@ if menu == "🤝 Find a Partner":
             timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
             final_timezone = timezone_other if timezone == "Others" else timezone
             search = st.form_submit_button("Find Matches")
+
             if search:
                 df = generate_dummy_partners()
                 exact_matches = df[
@@ -182,7 +220,7 @@ if menu == "🤝 Find a Partner":
                          (df["Language"] == final_language) |
                          (df["TimeZone"] == final_timezone))
                     ]
-                    st.warning("😕 Oops! No exact match found. But here are some similar partners you might like:")
+                    st.warning("😕 No exact match found. But here are some similar partners:")
                     matches_to_show = similar_matches
 
                 st.session_state.partners = matches_to_show.to_dict("records")
@@ -194,13 +232,12 @@ if menu == "🤝 Find a Partner":
                     "TimeZone": final_timezone
                 }
                 st.session_state.matched = True
-
                 if not matches_to_show.empty:
                     st.subheader("🎯 Your Matched Study Partners")
                     show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
                     st.table(matches_to_show[show_cols])
                 else:
-                    st.error("Still couldn't find anyone close to your preferences. Try changing your filters.")
+                    st.error("Still couldn't find a match. Try different preferences.")
 
 # 🎯 Matched Partners
 if menu == "🎯 Matched Partners":
@@ -211,7 +248,7 @@ if menu == "🎯 Matched Partners":
         show_cols = ["Name"] + [col for col, val in filters.items() if val and val != "Others"]
         st.table(df[show_cols])
     else:
-        st.info("You don't have any matches yet. Go to 'Find a Partner' to search.")
+        st.info("No matches found yet. Try 'Find a Partner'.")
 
 # 💼 Subscription Plans
 if menu == "💼 Subscription Plans":
@@ -221,8 +258,8 @@ if menu == "💼 Subscription Plans":
         st.markdown("### 🟢 Basic — ₹0")
         st.markdown("""
         - ✅ Limited Partner Matching  
-        - 📄 Access to Chat Mode Only  
-        - ⏰ 1 Hour/Day Session Limit  
+        - 📄 Chat Mode Only  
+        - ⏰ 1 Hour/Day Limit  
         - 🚫 No Teacher Access  
         """)
         if st.button("Choose Basic Plan"):
@@ -231,10 +268,10 @@ if menu == "💼 Subscription Plans":
         st.markdown("### 🔵 Premium — ₹499")
         st.markdown("""
         - ✅ Unlimited Matching  
-        - 🎥 Video & Audio Study Rooms  
-        - 📩 Daily Reminder & Planner  
-        - 👨‍🏫 Access to Verified Teachers  
-        - 📚 Notes Download Access  
+        - 🎥 Video & Audio Rooms  
+        - 📩 Reminders & Planners  
+        - 👨‍🏫 Teacher Access  
+        - 📚 Notes Downloads  
         """)
         if st.button("Choose Premium Plan"):
             st.session_state.selected_plan = "Premium"
@@ -242,13 +279,14 @@ if menu == "💼 Subscription Plans":
         st.markdown("### 🔴 Elite — ₹999")
         st.markdown("""
         - 🏆 All Premium Features  
-        - 💼 1:1 Mentorship Access  
-        - 🎯 Job/Internship Placement Help  
-        - 🧑‍🏫 Free Elite Teacher Sessions  
-        - 🛡️ Study Distraction Blocker  
+        - 💼 Mentorship Access  
+        - 🎯 Job/Internship Help  
+        - 🧑‍🏫 Free Teacher Sessions  
+        - 🛡️ Distraction Blocker  
         """)
         if st.button("Choose Elite Plan"):
             st.session_state.selected_plan = "Elite"
+
     if st.session_state.selected_plan:
         st.markdown(f"### Proceed to Payment for **{st.session_state.selected_plan}** Plan")
         method = st.radio("Choose Payment Method", ["UPI", "Credit/Debit Card", "PayPal"])
@@ -283,4 +321,3 @@ if menu == "💬 Feedback":
                 "Recommend": recommend
             })
             st.success("🎉 Thank you for your feedback!")
-
