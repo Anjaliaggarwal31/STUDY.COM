@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
+import time
 
 st.set_page_config(page_title="StudySync App", layout="wide")
 
@@ -22,6 +23,8 @@ def init_session():
         st.session_state.user_details = {}
     if "feedbacks" not in st.session_state:
         st.session_state.feedbacks = []
+    if "onboarded" not in st.session_state:
+        st.session_state.onboarded = False
 
 init_session()
 
@@ -67,10 +70,46 @@ quotes = {
 }
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
-# 🏠 Home
+# 🏠 Home with onboarding animation
 if menu == "🏠 Home":
-    st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
-    st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
+    if not st.session_state.onboarded:
+        with st.spinner("Launching StudySync..."):
+            time.sleep(1.2)
+        st.markdown("<h2 style='text-align: center; animation: fadeIn 2s;'>✨ Welcome to StudySync ✨</h2>", unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+            @keyframes fadeIn {
+              from {opacity: 0;}
+              to {opacity: 1;}
+            }
+            h2 {
+              animation: fadeIn 2s ease-in-out;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: teal;'>“The future belongs to those who prepare for it today.”</h4>", unsafe_allow_html=True)
+        time.sleep(2)
+        st.success("✅ You're ready to begin! Use the sidebar to register and match.")
+        st.session_state.onboarded = True
+    else:
+        st.success("Welcome back to StudySync — your personalized study buddy matcher! 🎓")
+        st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
+
+# 📝 Register
+# [Same registration logic – no changes needed here]
+
+# 🤝 Find a Partner
+# [Same partner matching logic – no changes needed here]
+
+# 🎯 Matched Partners
+# [Same matched partners logic – no changes needed here]
+
+# 💼 Subscription Plans
+# [Same subscription plans logic – no changes needed here]
+
+# 💬 Feedback
+# [Same feedback form logic – no changes needed here]
+
 
 # 📝 Register
 if menu == "📝 Register":
