@@ -283,4 +283,4 @@ if menu == "💬 Feedback":
                 "Recommend": recommend
             })
             st.success("🎉 Thank you for your feedback!")
-change the code such that when the user chooses the other option then he should get the option to put the name or specify that particular thing and make specifying that particular thing mandatory ! write the whole code again!
+
