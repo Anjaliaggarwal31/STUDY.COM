@@ -28,7 +28,6 @@ def init_session():
     if "profile_pic" not in st.session_state:
         st.session_state.profile_pic = None
 
-    # Load user details if already registered
     if os.path.exists("registered_users.csv") and st.session_state.user_email:
         df = pd.read_csv("registered_users.csv")
         if st.session_state.user_email in df["Email"].values:
@@ -71,7 +70,7 @@ quotes = {
 }
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
-# Dummy data
+# Dummy data for matching
 def generate_dummy_partners():
     names = ["Disha", "Kartik", "Harsh", "Mehak", "Aarav", "Anaya", "Ishaan", "Riya", "Kabir", "Tanvi"]
     genders = ["Male", "Female"]
@@ -87,6 +86,20 @@ def generate_dummy_partners():
         "Language": random.choice(languages),
         "TimeZone": random.choice(timezones)
     } for _ in range(50)])
+
+# Top Universities & Courses
+top_universities = [
+    "Harvard University", "Stanford University", "MIT", "University of Cambridge",
+    "University of Oxford", "California Institute of Technology", "ETH Zurich",
+    "University of Chicago", "Princeton University", "National University of Singapore (NUS)",
+    "Tsinghua University", "IIT", "IIM", "NIT", "DERI", "International", "Others"
+]
+
+top_courses = [
+    "Computer Science", "Engineering", "Economics", "Law", "Business Administration",
+    "Psychology", "Political Science", "Physics", "Mathematics", "Biology",
+    "UG", "PG", "Professional", "PhD", "Others"
+]
 
 # 🏠 Home
 if menu == "🏠 Home":
@@ -112,11 +125,11 @@ if menu == "📝 Register" and not st.session_state.registered:
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
 
-        university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
+        university = st.selectbox("University *", ["Select an option"] + top_universities)
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
         final_university = university_other if university == "Others" else university
 
-        course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
+        course = st.selectbox("Course *", ["Select an option"] + top_courses)
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
 
@@ -165,7 +178,7 @@ if menu == "📝 Register" and not st.session_state.registered:
                 if os.path.exists("registered_users.csv"):
                     df = pd.read_csv("registered_users.csv")
                     if email not in df["Email"].values:
-                        df = df.append(user_data, ignore_index=True)
+                        df = pd.concat([df, pd.DataFrame([user_data])], ignore_index=True)
                         df.to_csv("registered_users.csv", index=False)
                 else:
                     pd.DataFrame([user_data]).to_csv("registered_users.csv", index=False)
