@@ -20,13 +20,9 @@ st.markdown("""
     <h4 style='text-align: center; color: gray;'>"Study alone if you must, but find your tribe and learn faster."</h4>
 """, unsafe_allow_html=True)
 
-# Sidebar navigation
-if not st.session_state.registered:
-    menu = st.sidebar.selectbox("Navigation", ["🏠 Home", "📝 Register"])
-else:
-    menu = st.sidebar.selectbox("Navigation", ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"])
-
-st.session_state.menu = menu  # update menu in session state
+# Always show all options
+menu = st.sidebar.selectbox("Navigation", ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"])
+st.session_state.menu = menu
 
 # Dummy partner data for matching
 def generate_dummy_partners():
@@ -51,8 +47,6 @@ if menu == "📝 Register":
         gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
-
-        location = st.text_input("Location *")
 
         university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
@@ -84,7 +78,7 @@ if menu == "📝 Register":
             st.rerun()
 
 # Find Partner Form
-if menu == "🤝 Find a Partner" and st.session_state.registered:
+if menu == "🤝 Find a Partner":
     with st.form("find_partner_form"):
         partner_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
         partner_gender_other = st.text_input("Please specify partner gender *") if partner_gender == "Others" else ""
