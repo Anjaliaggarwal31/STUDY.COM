@@ -32,28 +32,34 @@ elif menu_option == "Register":
     st.header("🎓 Student Registration")
 
     with st.form("register_form"):
-        name = st.text_input("Full Name *")
-        email = st.text_input("Email *")
+    name = st.text_input("Full Name *", placeholder="Type your name and press Enter")
+    email = st.text_input("Email *", placeholder="Type your email and press Enter")
 
-        gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
-        gender_specify = st.text_input("Please specify your gender *") if gender == "Others" else ""
+    gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
+    if gender == "Others":
+        gender_specify = st.text_input("Please specify your gender *", placeholder="Enter your gender")
 
-        university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
-        university_other = st.text_input("Please specify your university *") if university == "Others" else ""
+    university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
+    if university == "Others":
+        university_other = st.text_input("Please specify your university *", placeholder="Enter university name")
 
-        course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
-        course_other = st.text_input("Please specify your course *") if course == "Others" else ""
+    course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
+    if course == "Others":
+        course_other = st.text_input("Please specify your course *", placeholder="Enter course name")
 
-        timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
-        timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
+    timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
+    if timezone == "Others":
+        timezone_other = st.text_input("Please specify your time zone *", placeholder="Enter time zone")
 
-        study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
-        goal_other = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
+    study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
+    if "Others" in study_goal:
+        goal_other = st.text_input("Please specify your goal *", placeholder="Enter your custom goal")
 
-        mode_pref = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
-        uploaded_id = st.file_uploader("Upload Your ID")
+    mode_pref = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
+    uploaded_id = st.file_uploader("Upload Your ID")
 
-        submitted = st.form_submit_button("Submit")
+    submitted = st.form_submit_button("Submit")
+
 
         # VALIDATION
         missing_fields = []
