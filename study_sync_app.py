@@ -37,26 +37,18 @@ def init_session():
 
 init_session()
 
-# Header
-st.markdown("<h1 style='text-align: center;'>🚀 StudySync</h1>", unsafe_allow_html=True)
+# Dropdown Options
+top_universities = ["Harvard University", "Stanford University", "MIT", "University of Cambridge", "University of Oxford",
+                    "California Institute of Technology", "ETH Zurich", "University of Chicago", "Princeton University",
+                    "National University of Singapore (NUS)", "Tsinghua University", "IIT", "IIM", "NIT", "DERI",
+                    "International", "Others"]
 
-# Sidebar Navigation
-menu_items = ["🏠 Home"]
-if st.session_state.registered:
-    menu_items += ["👤 Profile"]
-else:
-    menu_items += ["📝 Register"]
+top_courses = ["Computer Science", "Engineering", "Economics", "Law", "Business Administration", "Psychology",
+               "Political Science", "Physics", "Mathematics", "Biology", "UG", "PG", "Professional", "PhD", "Others"]
 
-menu_items += ["🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"]
-menu = st.sidebar.radio("📌 Navigation", menu_items, index=menu_items.index(st.session_state.menu))
-st.session_state.menu = menu
-
-# Logout
-if st.session_state.registered:
-    if st.sidebar.button("🚪 Logout"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+languages = ["English", "Hindi", "Others"]
+timezones = ["IST", "UTC", "EST", "PST", "Others"]
+genders = ["Select an option", "Male", "Female", "Others"]
 
 # Motivational Quotes
 quotes = {
@@ -68,6 +60,28 @@ quotes = {
     "🎯 Matched Partners": "“Two minds studying together go further than one.”",
     "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
 }
+
+# Header
+st.markdown("<h1 style='text-align: center;'>🚀 StudySync</h1>", unsafe_allow_html=True)
+
+# Sidebar
+menu_items = ["🏠 Home"]
+if st.session_state.registered:
+    menu_items += ["👤 Profile"]
+else:
+    menu_items += ["📝 Register"]
+menu_items += ["🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"]
+menu = st.sidebar.radio("📌 Navigation", menu_items, index=menu_items.index(st.session_state.menu))
+st.session_state.menu = menu
+
+# Logout
+if st.session_state.registered:
+    if st.sidebar.button("🚪 Logout"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+
+# Quote
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
 # Sample Partner Generator
@@ -78,28 +92,16 @@ def generate_dummy_partners():
     subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts"]
     languages = ["English", "Hindi"]
     timezones = ["IST", "UTC", "EST", "PST"]
+    hours = ["1 hour", "2 hours", "3–5 hours"]
     return pd.DataFrame([{
         "Name": random.choice(names),
         "Gender": random.choice(genders),
         "Knowledge": random.choice(knowledge_levels),
         "Subject": random.choice(subjects),
         "Language": random.choice(languages),
-        "TimeZone": random.choice(timezones)
+        "TimeZone": random.choice(timezones),
+        "Hours": random.choice(hours)
     } for _ in range(50)])
-
-# Universities and Courses
-top_universities = [
-    "Harvard University", "Stanford University", "MIT", "University of Cambridge",
-    "University of Oxford", "California Institute of Technology", "ETH Zurich",
-    "University of Chicago", "Princeton University", "National University of Singapore (NUS)",
-    "Tsinghua University", "IIT", "IIM", "NIT", "DERI", "International", "Others"
-]
-
-top_courses = [
-    "Computer Science", "Engineering", "Economics", "Law", "Business Administration",
-    "Psychology", "Political Science", "Physics", "Mathematics", "Biology",
-    "UG", "PG", "Professional", "PhD", "Others"
-]
 
 # 🏠 Home
 if menu == "🏠 Home":
@@ -110,7 +112,7 @@ if menu == "🏠 Home":
             if os.path.exists("registered_users.csv"):
                 df = pd.read_csv("registered_users.csv")
                 if email_input in df["Email"].values:
-                    st.session_state["user_email"] = email_input
+                    st.session_state.user_email = email_input
                     st.rerun()
                 else:
                     st.warning("Email not found. Please register first.")
@@ -121,7 +123,8 @@ if menu == "📝 Register" and not st.session_state.registered:
     with st.form("register_form"):
         name = st.text_input("Full Name *")
         email = st.text_input("Email *")
-        gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
+
+        gender = st.selectbox("Gender *", genders)
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
 
@@ -133,20 +136,21 @@ if menu == "📝 Register" and not st.session_state.registered:
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
 
-        timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
+        timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones)
         timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
         final_timezone = timezone_other if timezone == "Others" else timezone
 
         study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
         custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
 
-        language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Others"])
+        language = st.selectbox("Preferred Language *", ["Select an option"] + languages)
         language_other = st.text_input("Please specify your language *") if language == "Others" else ""
         final_language = language_other if language == "Others" else language
 
         mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
         uploaded_id = st.file_uploader("Upload Your ID (Optional)")
         profile_pic = st.file_uploader("Upload Your Profile Picture (Optional)", type=["png", "jpg", "jpeg"])
+
         submitted = st.form_submit_button("Submit")
 
         if submitted:
@@ -160,15 +164,10 @@ if menu == "📝 Register" and not st.session_state.registered:
             ])
             if required:
                 user_data = {
-                    "Name": name,
-                    "Email": email,
-                    "Gender": final_gender,
-                    "University": final_university,
-                    "Course": final_course,
-                    "Timezone": final_timezone,
+                    "Name": name, "Email": email, "Gender": final_gender, "University": final_university,
+                    "Course": final_course, "Timezone": final_timezone,
                     "Goal": "|".join(study_goal + ([custom_goal] if custom_goal else [])),
-                    "Language": final_language,
-                    "Mode": "|".join(mode),
+                    "Language": final_language, "Mode": "|".join(mode),
                     "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided",
                     "ProfilePic": profile_pic.name if profile_pic else "Not Provided"
                 }
@@ -193,65 +192,42 @@ if menu == "👤 Profile" and st.session_state.registered:
     st.markdown("### 👤 Your Profile")
     details = st.session_state.user_details
 
-    gender_options = ["Select an option", "Male", "Female", "Others"]
-    university_options = ["Select an option"] + top_universities
-    course_options = ["Select an option"] + top_courses
-
     with st.form("profile_form"):
         name = st.text_input("Full Name *", value=details.get("Name", ""))
         email = st.text_input("Email", value=details.get("Email", ""), disabled=True)
 
-        gender_value = details.get("Gender", "Select an option")
-        gender = st.selectbox("Gender *", gender_options, index=gender_options.index(gender_value) if gender_value in gender_options else 0)
+        gender = st.selectbox("Gender *", genders, index=genders.index(details.get("Gender", "Select an option")) if details.get("Gender", "Select an option") in genders else 0)
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
 
-        university_value = details.get("University", "Select an option")
-        university = st.selectbox("University *", university_options, index=university_options.index(university_value) if university_value in university_options else 0)
+        university = st.selectbox("University *", ["Select an option"] + top_universities, index=(["Select an option"] + top_universities).index(details.get("University", "Select an option")) if details.get("University", "Select an option") in (["Select an option"] + top_universities) else 0)
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
         final_university = university_other if university == "Others" else university
 
-        course_value = details.get("Course", "Select an option")
-        course = st.selectbox("Course *", course_options, index=course_options.index(course_value) if course_value in course_options else 0)
+        course = st.selectbox("Course *", ["Select an option"] + top_courses, index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option")) if details.get("Course", "Select an option") in (["Select an option"] + top_courses) else 0)
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
 
-        timezone = st.text_input("Time Zone *", value=details.get("Timezone", ""))
+        timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones, index=(["Select an option"] + timezones).index(details.get("Timezone", "Select an option")) if details.get("Timezone", "Select an option") in (["Select an option"] + timezones) else 0)
+        language = st.selectbox("Preferred Language *", ["Select an option"] + languages, index=(["Select an option"] + languages).index(details.get("Language", "Select an option")) if details.get("Language", "Select an option") in (["Select an option"] + languages) else 0)
+
         goal = st.text_input("Study Goal *", value=details.get("Goal", ""))
-        language = st.text_input("Preferred Language *", value=details.get("Language", ""))
         mode = st.text_input("Study Mode", value=details.get("Mode", ""))
         st.markdown(f"**Uploaded ID:** {details.get('ID_uploaded', 'Not Provided')}")
         profile_pic = st.file_uploader("Update Profile Picture (Optional)", type=["png", "jpg", "jpeg"])
-        update = st.form_submit_button("Update Details")
 
-        if update:
-            if all([name, final_gender not in ["", "Select an option"], final_university not in ["", "Select an option"],
-                    final_course not in ["", "Select an option"], timezone, goal, language]):
-                updated = {
-                    "Name": name,
-                    "Email": email,
-                    "Gender": final_gender,
-                    "University": final_university,
-                    "Course": final_course,
-                    "Timezone": timezone,
-                    "Goal": goal,
-                    "Language": language,
-                    "Mode": mode,
-                    "ID_uploaded": details.get("ID_uploaded", "Not Provided"),
-                    "ProfilePic": profile_pic.name if profile_pic else details.get("ProfilePic", "Not Provided")
-                }
-                st.session_state.user_details = updated
-                df = pd.read_csv("registered_users.csv")
-                df.loc[df["Email"] == email] = updated
-                df.to_csv("registered_users.csv", index=False)
-                st.success("✅ Profile updated successfully!")
-            else:
-                st.error("⚠️ Please complete all required fields")
-
-# Remaining sections: 🤝 Find a Partner, 💼 Subscription Plans, 🎯 Matched Partners, 💬 Feedback
-# (unchanged – continue from your existing code)
-
-
+        if st.form_submit_button("Update"):
+            updated = {
+                "Name": name, "Email": email, "Gender": final_gender, "University": final_university,
+                "Course": final_course, "Timezone": timezone, "Goal": goal, "Language": language,
+                "Mode": mode, "ID_uploaded": details.get("ID_uploaded", "Not Provided"),
+                "ProfilePic": profile_pic.name if profile_pic else details.get("ProfilePic", "Not Provided")
+            }
+            st.session_state.user_details = updated
+            df = pd.read_csv("registered_users.csv")
+            df.loc[df["Email"] == email] = updated
+            df.to_csv("registered_users.csv", index=False)
+            st.success("✅ Profile updated successfully!")
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
     if not st.session_state.registered:
@@ -267,59 +243,59 @@ if menu == "🤝 Find a Partner":
             subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
             final_subject = subject_other if subject == "Others" else subject
 
-            language = st.selectbox("Partner's Language *", ["Select an option", "English", "Hindi", "Other"])
-            language_other = st.text_input("Specify partner language *") if language == "Other" else ""
-            final_language = language_other if language == "Other" else language
+            language = st.selectbox("Partner's Language *", ["Select an option", "English", "Hindi", "Others"])
+            language_other = st.text_input("Specify partner language *") if language == "Others" else ""
+            final_language = language_other if language == "Others" else language
 
-            timezone = st.selectbox("Partner's Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
+            timezone = st.selectbox("Partner's Time Zone *", ["Select an option"] + timezones)
             timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
             final_timezone = timezone_other if timezone == "Others" else timezone
+
+            hours = st.selectbox("Preferred Study Hours *", ["Select an option", "Any", "1 hour", "2 hours", "3–5 hours", "6+ hours"])
 
             search = st.form_submit_button("Find Matches")
 
             if search:
-                if "Select an option" in [gender, knowledge, subject, language, timezone]:
+                required = [gender, knowledge, subject, language, timezone, hours]
+                if "Select an option" in required:
                     st.error("⚠️ Please select valid options for all fields.")
                 else:
                     df = generate_dummy_partners()
-                    exact_matches = df[
+                    filtered = df[
                         ((df["Gender"] == final_gender) | (final_gender == "Any")) &
                         (df["Knowledge"] == knowledge) &
                         (df["Subject"].str.lower() == final_subject.lower()) &
                         (df["Language"] == final_language) &
-                        (df["TimeZone"] == final_timezone)
+                        (df["TimeZone"] == final_timezone) &
+                        ((df["Hours"] == hours) | (hours == "Any"))
                     ]
-                    if not exact_matches.empty:
-                        st.success(f"✅ Found {len(exact_matches)} exact partner(s) matching your preference!")
-                        matches_to_show = exact_matches
+                    if not filtered.empty:
+                        st.success(f"✅ Found {len(filtered)} matching partner(s)!")
                     else:
-                        st.warning("😕 No exact match found. Showing similar partners.")
-                        matches_to_show = df[df["Knowledge"] == knowledge]
+                        st.warning("😕 No exact match found. Showing similar partners by knowledge.")
+                        filtered = df[df["Knowledge"] == knowledge]
 
-                    st.session_state.partners = matches_to_show.to_dict("records")
+                    st.session_state.partners = filtered.to_dict("records")
                     st.session_state.partner_filters = {
                         "Gender": None if final_gender == "Any" else final_gender,
                         "Knowledge": knowledge,
                         "Subject": final_subject,
                         "Language": final_language,
-                        "TimeZone": final_timezone
+                        "TimeZone": final_timezone,
+                        "Hours": None if hours == "Any" else hours
                     }
                     st.session_state.matched = True
 
-                    # SAVE TO CSV
-                    match_df = matches_to_show.copy()
-                    match_df["MatchedBy"] = st.session_state.user_email
+                    # Save matches
+                    filtered["MatchedBy"] = st.session_state.user_email
                     if os.path.exists("matched_partners.csv"):
-                        match_df.to_csv("matched_partners.csv", mode="a", index=False, header=False)
+                        filtered.to_csv("matched_partners.csv", mode="a", index=False, header=False)
                     else:
-                        match_df.to_csv("matched_partners.csv", index=False)
+                        filtered.to_csv("matched_partners.csv", index=False)
 
-                    if not matches_to_show.empty:
-                        st.subheader("🎯 Your Matched Study Partners")
-                        show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
-                        st.table(matches_to_show[show_cols])
-                    else:
-                        st.error("No similar matches found.")
+                    st.subheader("🎯 Your Matched Study Partners")
+                    display_cols = ["Name"] + [k for k, v in st.session_state.partner_filters.items() if v]
+                    st.table(filtered[display_cols])
 
 # 🎯 Matched Partners
 if menu == "🎯 Matched Partners":
@@ -327,7 +303,7 @@ if menu == "🎯 Matched Partners":
         st.subheader("🎯 Your Matched Study Partners")
         df = pd.DataFrame(st.session_state.partners)
         filters = st.session_state.partner_filters
-        show_cols = ["Name"] + [col for col, val in filters.items() if val and val != "Others"]
+        show_cols = ["Name"] + [col for col, val in filters.items() if val]
         st.table(df[show_cols])
     else:
         st.info("No matches found yet. Try 'Find a Partner'.")
