@@ -87,19 +87,62 @@ def generate_dummy_partners():
         "TimeZone": random.choice(timezones)
     } for _ in range(50)])
 
-# Top Universities & Courses
-top_universities = [
-    "Harvard University", "Stanford University", "MIT", "University of Cambridge",
-    "University of Oxford", "California Institute of Technology", "ETH Zurich",
-    "University of Chicago", "Princeton University", "National University of Singapore (NUS)",
-    "Tsinghua University", "IIT", "IIM", "NIT", "DERI", "International", "Others"
-]
+# 🤝 Find a Partner
+if menu == "🤝 Find a Partner":
+    if not st.session_state.registered:
+        st.warning("Please register first to find a partner.")
+    else:
+        with st.form("partner_form"):
+            gender = st.selectbox("Preferred Partner Gender *", ["Select an option", "Any", "Male", "Female", "Others"])
+            gender_other = st.text_input("Specify partner gender *") if gender == "Others" else ""
+            final_gender = gender_other if gender == "Others" else gender
+            knowledge = st.selectbox("Partner's Knowledge Level *", ["Select an option", "Beginner", "Intermediate", "Advanced"])
+            subject = st.selectbox("Subject to Study *", ["Select an option", "Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"])
+            subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
+            final_subject = subject_other if subject == "Others" else subject
+            language = st.selectbox("Partner's Language *", ["Select an option", "English", "Hindi", "Other"])
+            language_other = st.text_input("Specify partner language *") if language == "Other" else ""
+            final_language = language_other if language == "Other" else language
+            timezone = st.selectbox("Partner's Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
+            timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
+            final_timezone = timezone_other if timezone == "Others" else timezone
+            search = st.form_submit_button("Find Matches")
 
-top_courses = [
-    "Computer Science", "Engineering", "Economics", "Law", "Business Administration",
-    "Psychology", "Political Science", "Physics", "Mathematics", "Biology",
-    "UG", "PG", "Professional", "PhD", "Others"
-]
+            if search:
+                required_fields = [gender, knowledge, subject, language, timezone]
+                if any(x == "Select an option" for x in required_fields):
+                    st.error("⚠️ Please complete all required fields.")
+                else:
+                    df = generate_dummy_partners()
+                    exact_matches = df[
+                        ((df["Gender"] == final_gender) | (final_gender == "Any")) &
+                        (df["Knowledge"] == knowledge) &
+                        (df["Subject"].str.lower() == final_subject.lower()) &
+                        (df["Language"] == final_language) &
+                        (df["TimeZone"] == final_timezone)
+                    ]
+                    if not exact_matches.empty:
+                        st.success(f"✅ Found {len(exact_matches)} exact partner(s) matching your preference!")
+                        matches_to_show = exact_matches
+                    else:
+                        st.warning("😕 No exact match found. Showing similar partners.")
+                        matches_to_show = df[df["Knowledge"] == knowledge]
+
+                    st.session_state.partners = matches_to_show.to_dict("records")
+                    st.session_state.partner_filters = {
+                        "Gender": None if final_gender == "Any" else final_gender,
+                        "Knowledge": knowledge,
+                        "Subject": final_subject,
+                        "Language": final_language,
+                        "TimeZone": final_timezone
+                    }
+                    st.session_state.matched = True
+                    if not matches_to_show.empty:
+                        st.subheader("🎯 Your Matched Study Partners")
+                        show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
+                        st.table(matches_to_show[show_cols])
+                    else:
+                        st.error("No similar matches found.")
 
 # 🏠 Home
 if menu == "🏠 Home":
