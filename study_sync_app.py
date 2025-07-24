@@ -61,6 +61,7 @@ elif menu_option == "Register":
     submitted = st.form_submit_button("Submit")
 
 
+
         # VALIDATION
         missing_fields = []
         if not name.strip():
