@@ -94,23 +94,6 @@ if menu == "🏠 Home":
     else:
         st.success("Welcome back to StudySync — your personalized study buddy matcher! 🎓")
         st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
-
-# 📝 Register
-# [Same registration logic – no changes needed here]
-
-# 🤝 Find a Partner
-# [Same partner matching logic – no changes needed here]
-
-# 🎯 Matched Partners
-# [Same matched partners logic – no changes needed here]
-
-# 💼 Subscription Plans
-# [Same subscription plans logic – no changes needed here]
-
-# 💬 Feedback
-# [Same feedback form logic – no changes needed here]
-
-
 # 📝 Register
 if menu == "📝 Register":
     reg_type = st.radio("Register as", ["Student", "Teacher"])
