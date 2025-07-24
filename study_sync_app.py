@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import random
-import time
 
 st.set_page_config(page_title="StudySync App", layout="wide")
 
@@ -14,7 +13,7 @@ def init_session():
     if "partners" not in st.session_state:
         st.session_state.partners = []
     if "menu" not in st.session_state:
-        st.session_state.menu = "\ud83c\udfe0 Home"
+        st.session_state.menu = "🏠 Home"
     if "partner_filters" not in st.session_state:
         st.session_state.partner_filters = {}
     if "selected_plan" not in st.session_state:
@@ -23,18 +22,16 @@ def init_session():
         st.session_state.user_details = {}
     if "feedbacks" not in st.session_state:
         st.session_state.feedbacks = []
-    if "first_visit_home" not in st.session_state:
-        st.session_state.first_visit_home = True
 
 init_session()
 
 # Header
-st.markdown("<h1 style='text-align: center;'>\ud83d\ude80 StudySync</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🚀 StudySync</h1>", unsafe_allow_html=True)
 
 # Sidebar Navigation
-menu = st.sidebar.radio("\ud83d\udccc Navigation", 
-    ["\ud83c\udfe0 Home", "\ud83d\udcdd Register", "\ud83e\udd1d Find a Partner", "\ud83d\udcbc Subscription Plans", "\ud83c\udfaf Matched Partners", "\ud83d\udcac Feedback"],
-    index=["\ud83c\udfe0 Home", "\ud83d\udcdd Register", "\ud83e\udd1d Find a Partner", "\ud83d\udcbc Subscription Plans", "\ud83c\udfaf Matched Partners", "\ud83d\udcac Feedback"].index(st.session_state.menu)
+menu = st.sidebar.radio("📌 Navigation", 
+    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"],
+    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"].index(st.session_state.menu)
 )
 st.session_state.menu = menu
 
@@ -61,37 +58,20 @@ def generate_dummy_partners():
 
 # Quotes per page
 quotes = {
-    "\ud83c\udfe0 Home": "\u201cLearning becomes joyful when shared with a friend.”",
-    "\ud83d\udcdd Register": "\u201cYour journey to better learning begins with a simple registration.”",
-    "\ud83e\udd1d Find a Partner": "\u201cA study partner turns the impossible into achievable.”",
-    "\ud83d\udcbc Subscription Plans": "\u201cInvest in learning — it pays the best interest.”",
-    "\ud83c\udfaf Matched Partners": "\u201cTwo minds studying together go further than one.”",
-    "\ud83d\udcac Feedback": "\u201cYour voice helps us shape a smarter StudySync.”"
+    "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
+    "📝 Register": "“Your journey to better learning begins with a simple registration.”",
+    "🤝 Find a Partner": "“A study partner turns the impossible into achievable.”",
+    "💼 Subscription Plans": "“Invest in learning — it pays the best interest.”",
+    "🎯 Matched Partners": "“Two minds studying together go further than one.”",
+    "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
 }
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
-# \ud83c\udfe0 Home
-if menu == "\ud83c\udfe0 Home":
-    if st.session_state.first_visit_home:
-        st.session_state.first_visit_home = False
-        st.balloons()
-        st.markdown("<div style='text-align: center; font-size: 24px;'>\ud83d\udc4b</div>", unsafe_allow_html=True)
-        time.sleep(0.7)
-        welcome_msg = "Welcome to StudySync \u2014 your personalized study buddy matcher! \ud83c\udf93"
-        animated_text = st.empty()
-        typed = ""
-        for char in welcome_msg:
-            typed += char
-            animated_text.markdown(f"<h4 style='text-align: center;'>{typed}</h4>", unsafe_allow_html=True)
-            time.sleep(0.035)
-        time.sleep(0.8)
-        with st.empty():
-            st.info("\ud83d\udccc Use the sidebar to register, find a study partner, or explore subscriptions.")
-            time.sleep(0.5)
-            st.success("\u2728 Let’s make learning collaborative and fun!")
-    else:
-        st.success("Welcome to StudySync \u2014 your personalized study buddy matcher! \ud83c\udf93")
-        st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
+# 🏠 Home
+if menu == "🏠 Home":
+    st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
+    st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
+
 # 📝 Register
 if menu == "📝 Register":
     reg_type = st.radio("Register as", ["Student", "Teacher"])
