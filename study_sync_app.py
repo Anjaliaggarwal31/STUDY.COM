@@ -14,13 +14,17 @@ def init_session():
         st.session_state.partners = []
     if "menu" not in st.session_state:
         st.session_state.menu = "🏠 Home"
+    if "partner_filters" not in st.session_state:
+        st.session_state.partner_filters = {}
 init_session()
 
+# Header and quote
 st.markdown("""
     <h1 style='text-align: center;'>🚀 StudySync</h1>
     <h4 style='text-align: center; color: gray;'>"Study alone if you must, but find your tribe and learn faster."</h4>
 """, unsafe_allow_html=True)
 
+# Sidebar navigation
 menu = st.sidebar.radio("📌 Navigation", 
     ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"],
     index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"].index(st.session_state.menu)
@@ -48,12 +52,12 @@ def generate_dummy_partners():
         })
     return pd.DataFrame(data)
 
-# Home
+# 🏠 Home
 if menu == "🏠 Home":
     st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
     st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
 
-# Registration
+# 📝 Register
 if menu == "📝 Register":
     with st.form("register_form"):
         name = st.text_input("Full Name *")
@@ -92,7 +96,7 @@ if menu == "📝 Register":
             st.session_state.menu = "🤝 Find a Partner"
             st.rerun()
 
-# Partner Match
+# 🤝 Partner Match
 if menu == "🤝 Find a Partner":
     with st.form("find_partner_form"):
         partner_gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
@@ -118,6 +122,7 @@ if menu == "🤝 Find a Partner":
         if partner_submit:
             df = generate_dummy_partners()
 
+            # Apply full filtering
             filtered_df = df[
                 ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
                 (df.Knowledge == partner_knowledge) &
@@ -126,17 +131,16 @@ if menu == "🤝 Find a Partner":
                 (df.TimeZone == final_partner_timezone)
             ]
 
+            # Loosen filter if empty
             if filtered_df.empty:
                 filtered_df = df[
                     ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
                     (df.Knowledge == partner_knowledge) &
                     (df.TimeZone == final_partner_timezone)
                 ]
-
             if filtered_df.empty:
                 filtered_df = df[df.Knowledge == partner_knowledge].sample(3)
 
-            # Save both data and preference-based columns to session
             st.session_state.partners = filtered_df.to_dict("records")
             st.session_state.partner_filters = {
                 "Gender": final_partner_gender if final_partner_gender != "Any" else None,
@@ -150,11 +154,10 @@ if menu == "🤝 Find a Partner":
             st.success(f"✅ Found {len(filtered_df)} partner(s) matching your preference!")
             st.subheader("🎯 Your Matched Study Partners")
 
-            # Show only selected filter columns
             columns_to_show = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val]
             st.table(filtered_df[columns_to_show])
 
-# Matched Partner Table
+# 🎯 Matched Partners List
 if menu == "🎯 Matched Partners":
     if st.session_state.partners:
         st.subheader("🎯 Your Matched Study Partners")
@@ -165,20 +168,20 @@ if menu == "🎯 Matched Partners":
     else:
         st.info("You don't have any matches yet. Go to 'Find a Partner' to search.")
 
-# Subscription Plans
+# 💼 Subscription Plans
 if menu == "💼 Subscription Plans":
     st.subheader("💼 Subscription Tiers")
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        ### 🟢 Basic Plan — ₹0
+        ### 🟢 Basic Plan — ₹0  
         - Find Study Partners  
         - Set Goals & Preferences  
         - Access Notes  
         """)
     with col2:
         st.markdown("""
-        ### 🔵 Premium Plan — ₹499
+        ### 🔵 Premium Plan — ₹499  
         - Everything in Basic  
         - Access to Teachers  
         - Chat/Video Support  
@@ -186,14 +189,14 @@ if menu == "💼 Subscription Plans":
         """)
     with col3:
         st.markdown("""
-        ### 🔴 Elite Plan — ₹999
+        ### 🔴 Elite Plan — ₹999  
         - Everything in Premium  
         - Job Placement Assistance  
         - Personalized Coaching  
         - Certificate of Completion  
         """)
 
-# Teacher Registration
+# 👩‍🏫 Teacher Registration
 if menu == "👩‍🏫 Teacher Registration":
     with st.form("teacher_form"):
         t_name = st.text_input("Full Name *")
