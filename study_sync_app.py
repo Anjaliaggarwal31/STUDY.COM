@@ -26,14 +26,12 @@ def init_session():
 init_session()
 
 # Header
-st.markdown("""
-    <h1 style='text-align: center;'>🚀 StudySync</h1>
-""", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🚀 StudySync</h1>", unsafe_allow_html=True)
 
 # Sidebar Navigation
 menu = st.sidebar.radio("📌 Navigation", 
-    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"],
-    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"].index(st.session_state.menu)
+    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"],
+    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"].index(st.session_state.menu)
 )
 st.session_state.menu = menu
 
@@ -64,11 +62,9 @@ quotes = {
     "📝 Register": "“Your journey to better learning begins with a simple registration.”",
     "🤝 Find a Partner": "“A study partner turns the impossible into achievable.”",
     "💼 Subscription Plans": "“Invest in learning — it pays the best interest.”",
-    "👩‍🏫 Teacher Registration": "“Great teachers build better learners.”",
     "🎯 Matched Partners": "“Two minds studying together go further than one.”",
     "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
 }
-
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
 # 🏠 Home
@@ -78,50 +74,73 @@ if menu == "🏠 Home":
 
 # 📝 Register
 if menu == "📝 Register":
-    with st.form("register_form"):
-        name = st.text_input("Full Name *")
-        email = st.text_input("Email *")
-        gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
-        gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
-        final_gender = gender_other if gender == "Others" else gender
-        university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
-        university_other = st.text_input("Please specify your university *") if university == "Others" else ""
-        final_university = university_other if university == "Others" else university
-        course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
-        course_other = st.text_input("Please specify your course *") if course == "Others" else ""
-        final_course = course_other if course == "Others" else course
-        timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
-        timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
-        final_timezone = timezone_other if timezone == "Others" else timezone
-        study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
-        custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
-        language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Other"])
-        language_other = st.text_input("Please specify your language *") if language == "Other" else ""
-        final_language = language_other if language == "Other" else language
-        mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
-        uploaded_id = st.file_uploader("Upload Your ID (Optional)")
-        submitted = st.form_submit_button("Submit")
-        if submitted:
-            if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option":
-                st.session_state.user_details = {
-                    "Name": name,
-                    "Email": email,
-                    "Gender": final_gender,
-                    "University": final_university,
-                    "Course": final_course,
-                    "Timezone": final_timezone,
-                    "Goal": study_goal + ([custom_goal] if custom_goal else []),
-                    "Language": final_language,
-                    "Mode": mode,
-                    "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided"
-                }
-                st.session_state.registered = True
-                st.success(f"🎉 Thank you for registering with us, **{name}**!")
-                st.balloons()
-                st.session_state.menu = "🤝 Find a Partner"
-                st.rerun()
-            else:
-                st.error("⚠️ Please fill all required fields marked with *")
+    reg_type = st.radio("Register as", ["Student", "Teacher"])
+
+    if reg_type == "Student":
+        with st.form("student_form"):
+            name = st.text_input("Full Name *")
+            email = st.text_input("Email *")
+            gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
+            gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
+            final_gender = gender_other if gender == "Others" else gender
+            university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
+            university_other = st.text_input("Please specify your university *") if university == "Others" else ""
+            final_university = university_other if university == "Others" else university
+            course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
+            course_other = st.text_input("Please specify your course *") if course == "Others" else ""
+            final_course = course_other if course == "Others" else course
+            timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
+            timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
+            final_timezone = timezone_other if timezone == "Others" else timezone
+            study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
+            custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
+            language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Other"])
+            language_other = st.text_input("Please specify your language *") if language == "Other" else ""
+            final_language = language_other if language == "Other" else language
+            mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
+            uploaded_id = st.file_uploader("Upload Your ID (Optional)")
+            submitted = st.form_submit_button("Submit")
+            if submitted:
+                if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option":
+                    st.session_state.user_details = {
+                        "Name": name,
+                        "Email": email,
+                        "Gender": final_gender,
+                        "University": final_university,
+                        "Course": final_course,
+                        "Timezone": final_timezone,
+                        "Goal": study_goal + ([custom_goal] if custom_goal else []),
+                        "Language": final_language,
+                        "Mode": mode,
+                        "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided"
+                    }
+                    st.session_state.registered = True
+                    st.success(f"🎉 Thank you for registering with us, **{name}**!")
+                    st.balloons()
+                    st.session_state.menu = "🤝 Find a Partner"
+                    st.rerun()
+                else:
+                    st.error("⚠️ Please fill all required fields marked with *")
+
+    elif reg_type == "Teacher":
+        with st.form("teacher_form"):
+            tname = st.text_input("Full Name *")
+            subject = st.text_input("Subject Expertise *")
+            fee = st.selectbox("Hourly Teaching Fee", ["₹200", "₹500", "₹1000", "$10", "$20"])
+            duration = st.selectbox("Available Duration", ["1 hour", "2–3 hours", "Flexible"])
+            university = st.selectbox("University *", ["IIT", "IIM", "Other"])
+            university_other = st.text_input("Specify university *") if university == "Other" else ""
+            final_university = university_other if university == "Other" else university
+            status = st.radio("Current Status", ["Student", "Faculty", "Other"])
+            status_other = st.text_input("Specify status *") if status == "Other" else ""
+            final_status = status_other if status == "Other" else status
+            t_id = st.file_uploader("Upload your ID (Optional)")
+            t_submit = st.form_submit_button("Register as Teacher")
+            if t_submit:
+                if tname and subject:
+                    st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
+                else:
+                    st.error("Please fill all required fields.")
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
@@ -244,27 +263,6 @@ if menu == "💼 Subscription Plans":
             st.text_input("PayPal Email")
         if st.button("Pay Now"):
             st.success(f"✅ Payment successful for {st.session_state.selected_plan} Plan!")
-
-# 👩‍🏫 Teacher Registration
-if menu == "👩‍🏫 Teacher Registration":
-    with st.form("teacher_form"):
-        tname = st.text_input("Full Name *")
-        subject = st.text_input("Subject Expertise *")
-        fee = st.selectbox("Hourly Teaching Fee", ["₹200", "₹500", "₹1000", "$10", "$20"])
-        duration = st.selectbox("Available Duration", ["1 hour", "2–3 hours", "Flexible"])
-        university = st.selectbox("University *", ["IIT", "IIM", "Other"])
-        university_other = st.text_input("Specify university *") if university == "Other" else ""
-        final_university = university_other if university == "Other" else university
-        status = st.radio("Current Status", ["Student", "Faculty", "Other"])
-        status_other = st.text_input("Specify status *") if status == "Other" else ""
-        final_status = status_other if status == "Other" else status
-        t_id = st.file_uploader("Upload your ID (Optional)")
-        t_submit = st.form_submit_button("Register as Teacher")
-        if t_submit:
-            if tname and subject:
-                st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
-            else:
-                st.error("Please fill all required fields.")
 
 # 💬 Feedback
 if menu == "💬 Feedback":
