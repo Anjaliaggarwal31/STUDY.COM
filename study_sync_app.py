@@ -33,7 +33,7 @@ menu = st.sidebar.radio("📌 Navigation",
 )
 st.session_state.menu = menu
 
-# Generate realistic dummy data
+# Dummy partner generator
 def generate_dummy_partners():
     names = ["Disha", "Kartik", "Harsh", "Mehak", "Aarav", "Anaya", "Ishaan", "Riya", "Kabir", "Tanvi", "Yash", "Sneha", "Ved", "Simran"]
     genders = ["Male", "Female", "Others"]
@@ -98,7 +98,7 @@ if menu == "📝 Register":
             st.session_state.menu = "🤝 Find a Partner"
             st.rerun()
 
-# 🤝 Partner Matching
+# 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
     with st.form("partner_form"):
         gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
@@ -165,20 +165,45 @@ if menu == "🎯 Matched Partners":
 # 💼 Subscription Plans
 if menu == "💼 Subscription Plans":
     st.subheader("💼 Subscription Tiers")
-    col1, col2, col3 = st.columns(3)
 
+    col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("🟢 Basic Plan — ₹0"):
+        st.markdown("### 🟢 Basic — ₹0")
+        st.markdown("""
+        - ✅ Limited Partner Matching  
+        - 📄 Access to Chat Mode Only  
+        - ⏰ 1 Hour/Day Session Limit  
+        - 🚫 No Teacher Access  
+        """)
+        if st.button("Choose Basic Plan"):
             st.session_state.selected_plan = "Basic"
+    
     with col2:
-        if st.button("🔵 Premium Plan — ₹499"):
+        st.markdown("### 🔵 Premium — ₹499")
+        st.markdown("""
+        - ✅ Unlimited Matching  
+        - 🎥 Video & Audio Study Rooms  
+        - 📩 Daily Reminder & Planner  
+        - 👨‍🏫 Access to Verified Teachers  
+        - 📚 Notes Download Access  
+        """)
+        if st.button("Choose Premium Plan"):
             st.session_state.selected_plan = "Premium"
+    
     with col3:
-        if st.button("🔴 Elite Plan — ₹999"):
+        st.markdown("### 🔴 Elite — ₹999")
+        st.markdown("""
+        - 🏆 All Premium Features  
+        - 💼 1:1 Mentorship Access  
+        - 🎯 Job/Internship Placement Help  
+        - 🧑‍🏫 Free Elite Teacher Sessions  
+        - 🛡️ Study Distraction Blocker  
+        """)
+        if st.button("Choose Elite Plan"):
             st.session_state.selected_plan = "Elite"
 
     if st.session_state.selected_plan:
-        st.markdown(f"### Proceed to Payment for {st.session_state.selected_plan} Plan")
+        st.markdown(f"### Proceed to Payment for **{st.session_state.selected_plan}** Plan")
         method = st.radio("Choose Payment Method", ["UPI", "Credit/Debit Card", "PayPal"])
         if method == "UPI":
             st.text_input("Enter UPI ID")
