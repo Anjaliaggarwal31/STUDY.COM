@@ -161,13 +161,14 @@ if menu == "📝 Register":
         with st.form("teacher_form"):
             tname = st.text_input("Full Name *")
             temail = st.text_input("Email *")
-            subject = st.selectbox("Subject Expertise *", ["Select an option"] + subjects)
-            subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
-            final_subject = subject_other if subject == "Others" else subject
 
             course_expertise = st.selectbox("Course Expertise *", ["Select an option"] + top_courses)
             course_other = st.text_input("Please specify course *") if course_expertise == "Others" else ""
             final_course = course_other if course_expertise == "Others" else course_expertise
+
+            subject = st.selectbox("Subject Expertise *", ["Select an option"] + subjects)
+            subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
+            final_subject = subject_other if subject == "Others" else subject
 
             fee = st.selectbox("Hourly Teaching Fee", ["₹200", "₹500", "₹1000", "$10", "$20"])
             duration = st.selectbox("Available Duration", ["1 hour", "2–3 hours", "Flexible"])
