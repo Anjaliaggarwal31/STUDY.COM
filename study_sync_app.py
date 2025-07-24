@@ -115,21 +115,28 @@ if menu == "🤝 Find a Partner":
 
         partner_submit = st.form_submit_button("Find Matches")
 
-        if partner_submit:
+                if partner_submit:
             df = generate_dummy_partners()
-            results = df[
+
+            # Loose matching: match on at least 2–3 fields
+            filtered_df = df[
                 ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
-                (df.Knowledge == partner_knowledge) &
-                (df.Subject.str.contains(final_subject, case=False)) &
-                (df.Language == final_partner_language) &
-                (df.TimeZone == final_partner_timezone)
+                (df.Knowledge == partner_knowledge)
             ]
-            if not results.empty:
-                st.session_state.partners = results.to_dict("records")
-                st.success(f"✅ Found {len(results)} matching partner(s)!")
-            else:
-                st.session_state.partners = []
-                st.warning("No exact match found. Try relaxing your filters.")
+
+            # Further narrow if data is still sufficient
+            if len(filtered_df) < 3:
+                filtered_df = df[
+                    (df.Knowledge == partner_knowledge)
+                ]
+
+            # Fallback if still low
+            if len(filtered_df) < 3:
+                filtered_df = df.sample(3)
+
+            st.session_state.partners = filtered_df.to_dict("records")
+            st.success(f"✅ Found {len(filtered_df)} partner(s) for you!")
+
 
 # Matched Partner Table
 if menu == "🎯 Matched Partners":
