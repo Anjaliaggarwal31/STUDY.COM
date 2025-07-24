@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import random
 import time
-from fpdf import FPDF
 
 st.set_page_config(page_title="StudySync App", layout="wide")
 
