@@ -36,32 +36,19 @@ elif menu_option == "Register":
         email = st.text_input("Email *")
 
         gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
-        if gender == "Others":
-            gender_specify = st.text_input("Please specify your gender *")
-        elif gender == "Select an option":
-            gender_specify = None
+        gender_specify = st.text_input("Please specify your gender *") if gender == "Others" else ""
 
         university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
-        if university == "Others":
-            university_other = st.text_input("Please specify your university *")
-        elif university == "Select an option":
-            university_other = None
+        university_other = st.text_input("Please specify your university *") if university == "Others" else ""
 
         course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
-        if course == "Others":
-            course_other = st.text_input("Please specify your course *")
-        elif course == "Select an option":
-            course_other = None
+        course_other = st.text_input("Please specify your course *") if course == "Others" else ""
 
         timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
-        if timezone == "Others":
-            timezone_other = st.text_input("Please specify your time zone *")
-        elif timezone == "Select an option":
-            timezone_other = None
+        timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
 
         study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
-        if "Others" in study_goal:
-            goal_other = st.text_input("Please specify your goal *")
+        goal_other = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
 
         mode_pref = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
         uploaded_id = st.file_uploader("Upload Your ID")
@@ -70,7 +57,7 @@ elif menu_option == "Register":
 
         # VALIDATION
         missing_fields = []
-        if name.strip() == "":
+        if not name.strip():
             missing_fields.append("Name")
         if gender == "Select an option" or (gender == "Others" and not gender_specify.strip()):
             missing_fields.append("Gender")
@@ -95,55 +82,27 @@ elif menu_option == "Register":
                 st.session_state.show_partner_form = True
 
 
+
 # ---- PARTNER MATCHING ----
 elif menu_option == "Find a Study Partner" and st.session_state.registered:
-    st.header("🤝 Find a Study Partner")
+    st.header("🔍 Specify Your Ideal Study Partner")
 
     with st.form("partner_form"):
-        pname = st.text_input("Your Name *")
-
-        pgender = st.selectbox("Your Gender *", ["Select an option", "Male", "Female", "Others"])
-        if pgender == "Others":
-            pgender_specify = st.text_input("Please specify your gender *")
-        elif pgender == "Select an option":
-            pgender_specify = None
-
-        education = st.selectbox("Your Education Level *", ["Select an option", "UG", "PG", "PhD", "Others"])
-        if education == "Others":
-            education_other = st.text_input("Please specify education level *")
-        elif education == "Select an option":
-            education_other = None
-
-        lang = st.selectbox("Preferred Study Language *", ["Select an option", "English", "Hindi", "Other"])
-        if lang == "Other":
-            lang_specify = st.text_input("Please specify language *")
-        elif lang == "Select an option":
-            lang_specify = None
-
-        study_type = st.selectbox("Study Type *", ["Select an option", "Crash Revision", "Detailed Preparation", "Exam Tomorrow"])
+        pgender_pref = st.selectbox("Preferred Partner Gender *", ["Select an option", "No Preference", "Male", "Female", "Others"])
+        pgender_other = st.text_input("Please specify gender *") if pgender_pref == "Others" else ""
 
         subject = st.selectbox("Subject *", ["Select an option", "Math", "Science", "English", "History", "Other"])
-        if subject == "Other":
-            subject_specify = st.text_input("Please specify subject *")
-        elif subject == "Select an option":
-            subject_specify = None
+        subject_specify = st.text_input("Please specify subject *") if subject == "Other" else ""
 
         level = st.selectbox("Knowledge Level *", ["Select an option", "Beginner", "Intermediate", "Advanced"])
 
-        pgender_pref = st.selectbox("Preferred Partner Gender", ["No Preference", "Male", "Female", "Others"])
-
         timezone = st.selectbox("Partner Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
-        if timezone == "Others":
-            tz_specify = st.text_input("Please specify partner's time zone *")
-        elif timezone == "Select an option":
-            tz_specify = None
+        tz_specify = st.text_input("Please specify partner's time zone *") if timezone == "Others" else ""
 
-        mode = st.multiselect("Preferred Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
+        mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
+
         goal = st.selectbox("Study Goal *", ["Select an option", "Crash Course", "Detailed Preparation", "Exam Tomorrow", "Competitive Exam", "Others"])
-        if goal == "Others":
-            goal_other = st.text_input("Please specify goal *")
-        elif goal == "Select an option":
-            goal_other = None
+        goal_other = st.text_input("Please specify goal *") if goal == "Others" else ""
 
         info = st.text_area("Additional Info (Optional)")
 
@@ -151,16 +110,8 @@ elif menu_option == "Find a Study Partner" and st.session_state.registered:
 
         # VALIDATION
         missing_fields = []
-        if pname.strip() == "":
-            missing_fields.append("Name")
-        if pgender == "Select an option" or (pgender == "Others" and not pgender_specify.strip()):
-            missing_fields.append("Gender")
-        if education == "Select an option" or (education == "Others" and not education_other.strip()):
-            missing_fields.append("Education Level")
-        if lang == "Select an option" or (lang == "Other" and not lang_specify.strip()):
-            missing_fields.append("Study Language")
-        if study_type == "Select an option":
-            missing_fields.append("Study Type")
+        if pgender_pref == "Select an option" or (pgender_pref == "Others" and not pgender_other.strip()):
+            missing_fields.append("Partner Gender")
         if subject == "Select an option" or (subject == "Other" and not subject_specify.strip()):
             missing_fields.append("Subject")
         if level == "Select an option":
@@ -175,11 +126,11 @@ elif menu_option == "Find a Study Partner" and st.session_state.registered:
                 st.error("Please complete all required fields: " + ", ".join(missing_fields))
             else:
                 new_row = pd.DataFrame([{
-                    "Name": pname,
-                    "Gender": pgender,
-                    "Education Level": education,
-                    "Preferred Study Language": lang,
-                    "Study Type": study_type,
+                    "Name": "Preferred Partner",
+                    "Gender": pgender_pref,
+                    "Education Level": "N/A",
+                    "Preferred Study Language": "N/A",
+                    "Study Type": "N/A",
                     "Subject": subject,
                     "Knowledge Level": level,
                     "Partner Gender Preference": pgender_pref,
