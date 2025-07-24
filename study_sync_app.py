@@ -27,7 +27,7 @@ menu = st.sidebar.radio("📌 Navigation",
 )
 st.session_state.menu = menu
 
-# Generate random Indian-style dummy partner data
+# Generate realistic dummy partners
 def generate_dummy_partners():
     names = ["Aarav", "Vivaan", "Diya", "Anaya", "Rohan", "Priya", "Saanvi", "Kabir", "Ishita", "Dev", "Tanvi", "Meera", "Reyansh", "Tara"]
     genders = ["Male", "Female"]
@@ -37,7 +37,7 @@ def generate_dummy_partners():
     timezones = ["IST", "UTC", "EST", "PST"]
 
     data = []
-    for _ in range(25):
+    for _ in range(30):
         data.append({
             "Name": random.choice(names),
             "Gender": random.choice(genders),
@@ -115,28 +115,32 @@ if menu == "🤝 Find a Partner":
 
         partner_submit = st.form_submit_button("Find Matches")
 
-                if partner_submit:
+        if partner_submit:
             df = generate_dummy_partners()
 
-            # Loose matching: match on at least 2–3 fields
+            # Try to find best matches
             filtered_df = df[
                 ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
-                (df.Knowledge == partner_knowledge)
+                (df.Knowledge == partner_knowledge) &
+                (df.Subject.str.lower() == final_subject.lower()) &
+                (df.Language == final_partner_language) &
+                (df.TimeZone == final_partner_timezone)
             ]
 
-            # Further narrow if data is still sufficient
-            if len(filtered_df) < 3:
+            # Fallback 1 – Relax subject & language
+            if filtered_df.empty:
                 filtered_df = df[
-                    (df.Knowledge == partner_knowledge)
+                    ((df.Gender == final_partner_gender) | (final_partner_gender == "Any")) &
+                    (df.Knowledge == partner_knowledge) &
+                    (df.TimeZone == final_partner_timezone)
                 ]
 
-            # Fallback if still low
-            if len(filtered_df) < 3:
-                filtered_df = df.sample(3)
+            # Fallback 2 – Show 3 random similar partners
+            if filtered_df.empty:
+                filtered_df = df[df.Knowledge == partner_knowledge].sample(3)
 
             st.session_state.partners = filtered_df.to_dict("records")
-            st.success(f"✅ Found {len(filtered_df)} partner(s) for you!")
-
+            st.success(f"✅ Found {len(filtered_df)} partner(s) matching your preference!")
 
 # Matched Partner Table
 if menu == "🎯 Matched Partners":
