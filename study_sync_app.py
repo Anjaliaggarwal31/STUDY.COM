@@ -58,7 +58,7 @@ if st.session_state.registered:
             del st.session_state[key]
         st.rerun()
 
-# Quotes
+# Motivational Quotes
 quotes = {
     "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
     "📝 Register": "“Your journey to better learning begins with a simple registration.”",
@@ -70,21 +70,7 @@ quotes = {
 }
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
-# Dropdown Options
-top_universities = [
-    "Harvard University", "Stanford University", "MIT", "University of Cambridge",
-    "University of Oxford", "California Institute of Technology", "ETH Zurich",
-    "University of Chicago", "Princeton University", "National University of Singapore (NUS)",
-    "Tsinghua University", "IIT", "IIM", "NIT", "DERI", "International", "Others"
-]
-
-top_courses = [
-    "Computer Science", "Engineering", "Economics", "Law", "Business Administration",
-    "Psychology", "Political Science", "Physics", "Mathematics", "Biology",
-    "UG", "PG", "Professional", "PhD", "Others"
-]
-
-# Dummy Data Generator
+# Sample Partner Generator
 def generate_dummy_partners():
     names = ["Disha", "Kartik", "Harsh", "Mehak", "Aarav", "Anaya", "Ishaan", "Riya", "Kabir", "Tanvi"]
     genders = ["Male", "Female"]
@@ -100,6 +86,20 @@ def generate_dummy_partners():
         "Language": random.choice(languages),
         "TimeZone": random.choice(timezones)
     } for _ in range(50)])
+
+# Universities and Courses
+top_universities = [
+    "Harvard University", "Stanford University", "MIT", "University of Cambridge",
+    "University of Oxford", "California Institute of Technology", "ETH Zurich",
+    "University of Chicago", "Princeton University", "National University of Singapore (NUS)",
+    "Tsinghua University", "IIT", "IIM", "NIT", "DERI", "International", "Others"
+]
+
+top_courses = [
+    "Computer Science", "Engineering", "Economics", "Law", "Business Administration",
+    "Psychology", "Political Science", "Physics", "Mathematics", "Biology",
+    "UG", "PG", "Professional", "PhD", "Others"
+]
 
 # 🏠 Home
 if menu == "🏠 Home":
@@ -140,9 +140,9 @@ if menu == "📝 Register" and not st.session_state.registered:
         study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
         custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
 
-        language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Other"])
-        language_other = st.text_input("Please specify your language *") if language == "Other" else ""
-        final_language = language_other if language == "Other" else language
+        language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Others"])
+        language_other = st.text_input("Please specify your language *") if language == "Others" else ""
+        final_language = language_other if language == "Others" else language
 
         mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
         uploaded_id = st.file_uploader("Upload Your ID (Optional)")
@@ -192,19 +192,27 @@ if menu == "📝 Register" and not st.session_state.registered:
 if menu == "👤 Profile" and st.session_state.registered:
     st.markdown("### 👤 Your Profile")
     details = st.session_state.user_details
+
+    gender_options = ["Select an option", "Male", "Female", "Others"]
+    university_options = ["Select an option"] + top_universities
+    course_options = ["Select an option"] + top_courses
+
     with st.form("profile_form"):
         name = st.text_input("Full Name *", value=details.get("Name", ""))
         email = st.text_input("Email", value=details.get("Email", ""), disabled=True)
 
-        gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"], index=["Select an option", "Male", "Female", "Others"].index(details.get("Gender", "Select an option")) if details.get("Gender", "Select an option") in ["Male", "Female", "Others"] else 0)
+        gender_value = details.get("Gender", "Select an option")
+        gender = st.selectbox("Gender *", gender_options, index=gender_options.index(gender_value) if gender_value in gender_options else 0)
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
 
-        university = st.selectbox("University *", ["Select an option"] + top_universities, index=(["Select an option"] + top_universities).index(details.get("University", "Select an option")) if details.get("University", "Select an option") in top_universities else 0)
+        university_value = details.get("University", "Select an option")
+        university = st.selectbox("University *", university_options, index=university_options.index(university_value) if university_value in university_options else 0)
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
         final_university = university_other if university == "Others" else university
 
-        course = st.selectbox("Course *", ["Select an option"] + top_courses, index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option")) if details.get("Course", "Select an option") in top_courses else 0)
+        course_value = details.get("Course", "Select an option")
+        course = st.selectbox("Course *", course_options, index=course_options.index(course_value) if course_value in course_options else 0)
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
 
@@ -239,6 +247,10 @@ if menu == "👤 Profile" and st.session_state.registered:
                 st.success("✅ Profile updated successfully!")
             else:
                 st.error("⚠️ Please complete all required fields")
+
+# Remaining sections: 🤝 Find a Partner, 💼 Subscription Plans, 🎯 Matched Partners, 💬 Feedback
+# (unchanged – continue from your existing code)
+
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
