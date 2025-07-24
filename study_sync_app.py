@@ -187,7 +187,61 @@ if menu == "📝 Register" and not st.session_state.registered:
                 st.rerun()
             else:
                 st.error("⚠️ Please fill all required fields")
+                
+# 👤 Profile
+if menu == "👤 Profile" and st.session_state.registered:
+    st.markdown("### 👤 Your Profile")
+    details = st.session_state.user_details
+    with st.form("profile_form"):
+        name = st.text_input("Full Name *", value=details.get("Name", ""))
+        email = st.text_input("Email", value=details.get("Email", ""), disabled=True)
 
+        gender_options = ["Select an option", "Male", "Female", "Others"]
+        gender = st.selectbox("Gender *", gender_options, index=gender_options.index(details.get("Gender", "Select an option")))
+        gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
+        final_gender = gender_other if gender == "Others" else gender
+
+        university_options = ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"]
+        university = st.selectbox("University *", university_options, index=university_options.index(details.get("University", "Select an option")))
+        university_other = st.text_input("Please specify your university *") if university == "Others" else ""
+        final_university = university_other if university == "Others" else university
+
+        course_options = ["Select an option", "UG", "PG", "Professional", "PhD", "Others"]
+        course = st.selectbox("Course *", course_options, index=course_options.index(details.get("Course", "Select an option")))
+        course_other = st.text_input("Please specify your course *") if course == "Others" else ""
+        final_course = course_other if course == "Others" else course
+
+        timezone = st.text_input("Time Zone *", value=details.get("Timezone", ""))
+        goal = st.text_input("Study Goal *", value=details.get("Goal", ""))
+        language = st.text_input("Preferred Language *", value=details.get("Language", ""))
+        mode = st.text_input("Study Mode", value=details.get("Mode", ""))
+        st.markdown(f"**Uploaded ID:** {details.get('ID_uploaded', 'Not Provided')}")
+        profile_pic = st.file_uploader("Update Profile Picture (Optional)", type=["png", "jpg", "jpeg"])
+        update = st.form_submit_button("Update Details")
+
+        if update:
+            if all([name, final_gender not in ["", "Select an option"], final_university not in ["", "Select an option"],
+                    final_course not in ["", "Select an option"], timezone, goal, language]):
+                updated = {
+                    "Name": name,
+                    "Email": email,
+                    "Gender": final_gender,
+                    "University": final_university,
+                    "Course": final_course,
+                    "Timezone": timezone,
+                    "Goal": goal,
+                    "Language": language,
+                    "Mode": mode,
+                    "ID_uploaded": details.get("ID_uploaded", "Not Provided"),
+                    "ProfilePic": profile_pic.name if profile_pic else details.get("ProfilePic", "Not Provided")
+                }
+                st.session_state.user_details = updated
+                df = pd.read_csv("registered_users.csv")
+                df.loc[df["Email"] == email] = updated
+                df.to_csv("registered_users.csv", index=False)
+                st.success("✅ Profile updated successfully!")
+            else:
+                st.error("⚠️ Please complete all required fields")
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
     if not st.session_state.registered:
