@@ -149,7 +149,7 @@ if menu == "📝 Register" and not st.session_state.registered:
         profile_pic = st.file_uploader("Upload Your Profile Picture (Optional)", type=["png", "jpg", "jpeg"])
         submitted = st.form_submit_button("Submit")
 
-         if submitted:
+        if submitted:
             required = all([
                 name, email,
                 final_gender not in ["", "Select an option"],
