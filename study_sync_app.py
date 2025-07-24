@@ -29,7 +29,7 @@ def generate_dummy_partners():
         {"Name": "Aman", "Gender": "Male", "Knowledge": "Advanced", "Subject": "CS", "TimeZone": "IST", "Language": "Hindi"},
     ])
 
-# Home Screen
+# Home
 if menu == "🏠 Home":
     st.success("Welcome to StudySync — your personalized study buddy matcher! 🎓")
     st.info("Use the sidebar to register, find a study partner, or explore subscriptions.")
@@ -37,8 +37,8 @@ if menu == "🏠 Home":
 # Registration Form
 if menu == "📝 Register":
     with st.form("register_form"):
-        name = st.text_input("Full Name *", placeholder="Type your name and press Enter")
-        email = st.text_input("Email *", placeholder="Type your email and press Enter")
+        name = st.text_input("Full Name *")
+        email = st.text_input("Email *")
 
         gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
         if gender == "Others":
@@ -72,7 +72,7 @@ if menu == "📝 Register":
         submitted = st.form_submit_button("Submit")
         if submitted:
             st.session_state.registered = True
-            st.success("🎉 Registration successful! Proceed to Find a Partner.")
+            st.success("🎉 Registration successful! Proceed to 'Find a Partner' from sidebar.")
 
 # Find Partner
 if menu == "🤝 Find a Partner" and st.session_state.registered:
@@ -82,7 +82,12 @@ if menu == "🤝 Find a Partner" and st.session_state.registered:
             partner_gender = st.text_input("Please specify partner gender *")
 
         partner_knowledge = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
-        partner_subject = st.text_input("Subject to Study Together *")
+
+        subject_options = ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"]
+        partner_subject = st.selectbox("Subject to Study Together *", subject_options)
+        if partner_subject == "Others":
+            partner_subject = st.text_input("Please specify the subject *")
+
         partner_language = st.selectbox("Partner's Preferred Language", ["English", "Hindi", "Other"])
         if partner_language == "Other":
             partner_language = st.text_input("Please specify partner language *")
