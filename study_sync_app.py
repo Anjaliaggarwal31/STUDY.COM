@@ -20,6 +20,9 @@ def init_session():
         st.session_state.selected_plan = None
     if "user_details" not in st.session_state:
         st.session_state.user_details = {}
+    if "feedbacks" not in st.session_state:
+        st.session_state.feedbacks = []
+
 init_session()
 
 # App Header
@@ -30,8 +33,8 @@ st.markdown("""
 
 # Sidebar Menu
 menu = st.sidebar.radio("📌 Navigation", 
-    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"],
-    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"].index(st.session_state.menu)
+    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"],
+    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners", "💬 Feedback"].index(st.session_state.menu)
 )
 st.session_state.menu = menu
 
@@ -66,33 +69,25 @@ if menu == "📝 Register":
     with st.form("register_form"):
         name = st.text_input("Full Name *")
         email = st.text_input("Email *")
-
         gender = st.selectbox("Gender *", ["Select an option", "Male", "Female", "Others"])
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
-
         university = st.selectbox("University *", ["Select an option", "IIT", "IIM", "NIT", "DERI", "International", "Others"])
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
         final_university = university_other if university == "Others" else university
-
         course = st.selectbox("Course *", ["Select an option", "UG", "PG", "Professional", "PhD", "Others"])
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
-
         timezone = st.selectbox("Time Zone *", ["Select an option", "IST", "UTC", "EST", "PST", "Others"])
         timezone_other = st.text_input("Please specify your time zone *") if timezone == "Others" else ""
         final_timezone = timezone_other if timezone == "Others" else timezone
-
         study_goal = st.multiselect("Your Study Goal *", ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"])
         custom_goal = st.text_input("Please specify your goal *") if "Others" in study_goal else ""
-
         language = st.selectbox("Preferred Language *", ["Select an option", "English", "Hindi", "Other"])
         language_other = st.text_input("Please specify your language *") if language == "Other" else ""
         final_language = language_other if language == "Other" else language
-
         mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
         uploaded_id = st.file_uploader("Upload Your ID *")
-
         submitted = st.form_submit_button("Submit")
         if submitted:
             if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option" and uploaded_id:
@@ -125,26 +120,19 @@ if menu == "🤝 Find a Partner":
             gender = st.selectbox("Preferred Partner Gender", ["Any", "Male", "Female", "Others"])
             gender_other = st.text_input("Specify partner gender *") if gender == "Others" else ""
             final_gender = gender_other if gender == "Others" else gender
-
             knowledge = st.selectbox("Partner's Knowledge Level", ["Beginner", "Intermediate", "Advanced"])
-
             subject = st.selectbox("Subject to Study *", ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"])
             subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
             final_subject = subject_other if subject == "Others" else subject
-
             language = st.selectbox("Partner's Language", ["English", "Hindi", "Other"])
             language_other = st.text_input("Specify partner language *") if language == "Other" else ""
             final_language = language_other if language == "Other" else language
-
             timezone = st.selectbox("Partner's Time Zone", ["IST", "UTC", "EST", "PST", "Others"])
             timezone_other = st.text_input("Specify partner time zone *") if timezone == "Others" else ""
             final_timezone = timezone_other if timezone == "Others" else timezone
-
             search = st.form_submit_button("Find Matches")
-
             if search:
                 df = generate_dummy_partners()
-
                 filtered = df[
                     ((df["Gender"] == final_gender) | (final_gender == "Any")) &
                     (df["Knowledge"] == knowledge) &
@@ -152,11 +140,9 @@ if menu == "🤝 Find a Partner":
                     (df["Language"] == final_language) &
                     (df["TimeZone"] == final_timezone)
                 ]
-
                 if filtered.empty:
                     st.warning("No exact matches found, showing approximate matches.")
                     filtered = df[df["Knowledge"] == knowledge].sample(3)
-
                 st.session_state.partners = filtered.to_dict("records")
                 st.session_state.partner_filters = {
                     "Gender": None if final_gender == "Any" else final_gender,
@@ -166,7 +152,6 @@ if menu == "🤝 Find a Partner":
                     "TimeZone": final_timezone
                 }
                 st.session_state.matched = True
-
                 st.success(f"✅ Found {len(filtered)} partner(s) matching your preference!")
                 st.subheader("🎯 Your Matched Study Partners")
                 show_cols = ["Name"] + [col for col, val in st.session_state.partner_filters.items() if val and val != "Others"]
@@ -186,7 +171,6 @@ if menu == "🎯 Matched Partners":
 # 💼 Subscription Plans
 if menu == "💼 Subscription Plans":
     st.subheader("💼 Subscription Tiers")
-
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("### 🟢 Basic — ₹0")
@@ -198,7 +182,6 @@ if menu == "💼 Subscription Plans":
         """)
         if st.button("Choose Basic Plan"):
             st.session_state.selected_plan = "Basic"
-
     with col2:
         st.markdown("### 🔵 Premium — ₹499")
         st.markdown("""
@@ -210,7 +193,6 @@ if menu == "💼 Subscription Plans":
         """)
         if st.button("Choose Premium Plan"):
             st.session_state.selected_plan = "Premium"
-
     with col3:
         st.markdown("### 🔴 Elite — ₹999")
         st.markdown("""
@@ -222,7 +204,6 @@ if menu == "💼 Subscription Plans":
         """)
         if st.button("Choose Elite Plan"):
             st.session_state.selected_plan = "Elite"
-
     if st.session_state.selected_plan:
         st.markdown(f"### Proceed to Payment for **{st.session_state.selected_plan}** Plan")
         method = st.radio("Choose Payment Method", ["UPI", "Credit/Debit Card", "PayPal"])
@@ -248,16 +229,33 @@ if menu == "👩‍🏫 Teacher Registration":
         university = st.selectbox("University *", ["IIT", "IIM", "Other"])
         university_other = st.text_input("Specify university *") if university == "Other" else ""
         final_university = university_other if university == "Other" else university
-
         status = st.radio("Current Status", ["Student", "Faculty", "Other"])
         status_other = st.text_input("Specify status *") if status == "Other" else ""
         final_status = status_other if status == "Other" else status
-
         t_id = st.file_uploader("Upload your ID *")
-
         t_submit = st.form_submit_button("Register as Teacher")
         if t_submit:
             if tname and subject and t_id:
                 st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
             else:
                 st.error("Please fill all required fields.")
+
+# 💬 Feedback
+if menu == "💬 Feedback":
+    st.subheader("💬 Share Your Feedback")
+    with st.form("feedback_form"):
+        fname = st.text_input("Your Name")
+        femail = st.text_input("Email")
+        rating = st.slider("Rate your experience", 1, 5)
+        suggestions = st.text_area("Any suggestions or feedback?")
+        recommend = st.radio("Would you recommend StudySync?", ["Yes", "Maybe", "No"])
+        fsubmit = st.form_submit_button("Submit Feedback")
+        if fsubmit:
+            st.session_state.feedbacks.append({
+                "Name": fname,
+                "Email": femail,
+                "Rating": rating,
+                "Suggestions": suggestions,
+                "Recommend": recommend
+            })
+            st.success("🎉 Thank you for your feedback!")
