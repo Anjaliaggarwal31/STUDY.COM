@@ -87,10 +87,10 @@ if menu == "📝 Register":
         language_other = st.text_input("Please specify your language *") if language == "Other" else ""
         final_language = language_other if language == "Other" else language
         mode = st.multiselect("Preferred Study Mode", ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"])
-        uploaded_id = st.file_uploader("Upload Your ID *")
+        uploaded_id = st.file_uploader("Upload Your ID (Optional)")
         submitted = st.form_submit_button("Submit")
         if submitted:
-            if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option" and uploaded_id:
+            if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option":
                 st.session_state.user_details = {
                     "Name": name,
                     "Email": email,
@@ -101,7 +101,7 @@ if menu == "📝 Register":
                     "Goal": study_goal + ([custom_goal] if custom_goal else []),
                     "Language": final_language,
                     "Mode": mode,
-                    "ID_uploaded": uploaded_id.name
+                    "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided"
                 }
                 st.session_state.registered = True
                 st.success(f"🎉 Thank you for registering with us, **{name}**!")
@@ -138,7 +138,7 @@ if menu == "🤝 Find a Partner":
                     (df["Knowledge"] == knowledge) &
                     (df["Subject"].str.lower() == final_subject.lower()) &
                     (df["Language"] == final_language) &
-                    (df["TimeZone"] == final_timezone)  # Strict TimeZone match
+                    (df["TimeZone"] == final_timezone)
                 ]
                 st.session_state.partners = filtered.to_dict("records")
                 st.session_state.partner_filters = {
@@ -232,10 +232,10 @@ if menu == "👩‍🏫 Teacher Registration":
         status = st.radio("Current Status", ["Student", "Faculty", "Other"])
         status_other = st.text_input("Specify status *") if status == "Other" else ""
         final_status = status_other if status == "Other" else status
-        t_id = st.file_uploader("Upload your ID *")
+        t_id = st.file_uploader("Upload your ID (Optional)")
         t_submit = st.form_submit_button("Register as Teacher")
         if t_submit:
-            if tname and subject and t_id:
+            if tname and subject:
                 st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
             else:
                 st.error("Please fill all required fields.")
