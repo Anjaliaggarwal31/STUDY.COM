@@ -21,7 +21,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Always show all options
-menu = st.sidebar.selectbox("Navigation", ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"])
+menu = st.sidebar.radio("📌 Navigation", 
+    ["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"],
+    index=["🏠 Home", "📝 Register", "🤝 Find a Partner", "💼 Subscription Plans", "👩‍🏫 Teacher Registration", "🎯 Matched Partners"].index(st.session_state.menu)
+)
 st.session_state.menu = menu
 
 # Dummy partner data for matching
