@@ -18,6 +18,8 @@ def init_session():
         st.session_state.partner_filters = {}
     if "selected_plan" not in st.session_state:
         st.session_state.selected_plan = None
+    if "user_details" not in st.session_state:
+        st.session_state.user_details = {}
 init_session()
 
 # Header and welcome message
@@ -93,10 +95,26 @@ if menu == "📝 Register":
 
         submitted = st.form_submit_button("Submit")
         if submitted:
-            st.session_state.registered = True
-            st.success("🎉 Registration successful! Taking you to partner finder...")
-            st.session_state.menu = "🤝 Find a Partner"
-            st.rerun()
+            if name and email and final_gender != "Select an option" and final_university != "Select an option" and final_course != "Select an option" and final_timezone != "Select an option" and final_language != "Select an option" and uploaded_id:
+                st.session_state.user_details = {
+                    "Name": name,
+                    "Email": email,
+                    "Gender": final_gender,
+                    "University": final_university,
+                    "Course": final_course,
+                    "Timezone": final_timezone,
+                    "Goal": study_goal + ([custom_goal] if custom_goal else []),
+                    "Language": final_language,
+                    "Mode": mode,
+                    "ID_uploaded": uploaded_id.name
+                }
+                st.session_state.registered = True
+                st.success(f"🎉 Congratulations **{name}**, you have successfully registered!")
+                st.balloons()
+                st.session_state.menu = "🤝 Find a Partner"
+                st.rerun()
+            else:
+                st.error("⚠️ Please fill all required fields marked with *")
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
@@ -177,7 +195,7 @@ if menu == "💼 Subscription Plans":
         """)
         if st.button("Choose Basic Plan"):
             st.session_state.selected_plan = "Basic"
-    
+
     with col2:
         st.markdown("### 🔵 Premium — ₹499")
         st.markdown("""
@@ -189,7 +207,7 @@ if menu == "💼 Subscription Plans":
         """)
         if st.button("Choose Premium Plan"):
             st.session_state.selected_plan = "Premium"
-    
+
     with col3:
         st.markdown("### 🔴 Elite — ₹999")
         st.markdown("""
