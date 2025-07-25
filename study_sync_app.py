@@ -147,23 +147,12 @@ if menu == "📝 Register":
                         "Goal": study_goal + ([custom_goal] if custom_goal else []),
                         "Language": final_language,
                         "Mode": mode,
-                        "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided",
-                        "ProfilePic": "Not Provided",
-                        "UserType": "Student"
+                        "ID_uploaded": uploaded_id.name if uploaded_id else "Not Provided"
                     }
-                    st.session_state.user_email = email
                     st.session_state.registered = True
-
-                    if os.path.exists("registered_users.csv"):
-                        df = pd.read_csv("registered_users.csv")
-                        df = pd.concat([df, pd.DataFrame([st.session_state.user_details])], ignore_index=True)
-                    else:
-                        df = pd.DataFrame([st.session_state.user_details])
-                    df.to_csv("registered_users.csv", index=False)
-
                     st.success(f"🎉 Thank you for registering with us, *{name}*!")
                     st.balloons()
-                    st.session_state.menu = "👤 Profile"
+                    st.session_state.menu = "🤝 Find a Partner"
                     st.rerun()
                 else:
                     st.error("⚠ Please fill all required fields marked with *")
@@ -193,38 +182,15 @@ if menu == "📝 Register":
 
             t_id = st.file_uploader("Upload your ID (Optional)")
             t_submit = st.form_submit_button("Register as Teacher")
-
             if t_submit:
                 if tname and temail and final_subject != "Select an option" and final_course != "Select an option":
-                    teacher_details = {
-                        "Name": tname,
-                        "Email": temail,
-                        "Course": final_course,
-                        "Subject": final_subject,
-                        "Fee": fee,
-                        "Duration": duration,
-                        "University": final_university,
-                        "Status": final_status,
-                        "ID_uploaded": t_id.name if t_id else "Not Provided",
-                        "ProfilePic": "Not Provided",
-                        "UserType": "Teacher"
-                    }
-                    st.session_state.user_details = teacher_details
-                    st.session_state.user_email = temail
-                    st.session_state.registered = True
-
-                    if os.path.exists("registered_users.csv"):
-                        df = pd.read_csv("registered_users.csv")
-                        df = pd.concat([df, pd.DataFrame([teacher_details])], ignore_index=True)
-                    else:
-                        df = pd.DataFrame([teacher_details])
-                    df.to_csv("registered_users.csv", index=False)
-
-                    st.success(f"✅ Thank you {tname} for registering as a teacher!")
-                    st.session_state.menu = "👤 Profile"
-                    st.rerun()
+                    st.success(f"✅ Thank you {tname} for registering as a teacher! We’ll reach out to you soon.")
                 else:
                     st.error("⚠ Please fill all required fields.")
+
+# The rest of the app (Profile, Find a Partner, Matched Partners, Subscription Plans, Feedback) remains unchanged.
+
+
 # 👤 Profile
 if menu == "👤 Profile" and st.session_state.registered:
     st.markdown("### 👤 Your Profile")
@@ -234,56 +200,43 @@ if menu == "👤 Profile" and st.session_state.registered:
         name = st.text_input("Full Name *", value=details.get("Name", ""))
         email = st.text_input("Email", value=details.get("Email", ""), disabled=True)
 
-        if details.get("UserType") == "Student":
-            gender = st.selectbox("Gender *", genders, index=genders.index(details.get("Gender", "Select an option")) if details.get("Gender") in genders else 0)
-            gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
-            final_gender = gender_other if gender == "Others" else gender
+        gender = st.selectbox("Gender *", genders, index=genders.index(details.get("Gender", "Select an option")) if details.get("Gender", "Select an option") in genders else 0)
+        gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
+        final_gender = gender_other if gender == "Others" else gender
 
-            university = st.selectbox("University *", ["Select an option"] + top_universities,
-                                      index=(["Select an option"] + top_universities).index(details.get("University", "Select an option")) if details.get("University") in (["Select an option"] + top_universities) else 0)
-            university_other = st.text_input("Please specify your university *") if university == "Others" else ""
-            final_university = university_other if university == "Others" else university
+        university = st.selectbox("University *", ["Select an option"] + top_universities, index=(["Select an option"] + top_universities).index(details.get("University", "Select an option")) if details.get("University", "Select an option") in (["Select an option"] + top_universities) else 0)
+        university_other = st.text_input("Please specify your university *") if university == "Others" else ""
+        final_university = university_other if university == "Others" else university
 
-            course = st.selectbox("Course *", ["Select an option"] + top_courses,
-                                  index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option")) if details.get("Course") in (["Select an option"] + top_courses) else 0)
-            course_other = st.text_input("Please specify your course *") if course == "Others" else ""
-            final_course = course_other if course == "Others" else course
+        course = st.selectbox("Course *", ["Select an option"] + top_courses, index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option")) if details.get("Course", "Select an option") in (["Select an option"] + top_courses) else 0)
+        course_other = st.text_input("Please specify your course *") if course == "Others" else ""
+        final_course = course_other if course == "Others" else course
 
-            timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones,
-                                    index=(["Select an option"] + timezones).index(details.get("Timezone", "Select an option")) if details.get("Timezone") in (["Select an option"] + timezones) else 0)
+        timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones, index=(["Select an option"] + timezones).index(details.get("Timezone", "Select an option")) if details.get("Timezone", "Select an option") in (["Select an option"] + timezones) else 0)
 
-            language = st.selectbox("Preferred Language *", ["Select an option"] + languages,
-                                    index=(["Select an option"] + languages).index(details.get("Language", "Select an option")) if details.get("Language") in (["Select an option"] + languages) else 0)
+        language = st.selectbox("Preferred Language *", ["Select an option"] + languages, index=(["Select an option"] + languages).index(details.get("Language", "Select an option")) if details.get("Language", "Select an option") in (["Select an option"] + languages) else 0)
 
-            # Study Goal
-            predefined_goals = ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"]
-            current_goals = details.get("Goal", [])
-            if isinstance(current_goals, str):
-                try:
-                    import ast
-                    current_goals = ast.literal_eval(current_goals)
-                except:
-                    current_goals = [current_goals]
-            goal = st.multiselect("Study Goal *", predefined_goals, default=current_goals)
+        # Study Goal - Dropdown (multiselect)
+        predefined_goals = ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"]
+        current_goals = details.get("Goal", [])
+        if isinstance(current_goals, str):
+            try:
+                import ast
+                current_goals = ast.literal_eval(current_goals)
+            except:
+                current_goals = [current_goals]
+        goal = st.multiselect("Study Goal *", predefined_goals, default=current_goals)
 
-            # Study Mode
-            predefined_modes = ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"]
-            current_modes = details.get("Mode", [])
-            if isinstance(current_modes, str):
-                try:
-                    import ast
-                    current_modes = ast.literal_eval(current_modes)
-                except:
-                    current_modes = [current_modes]
-            mode = st.multiselect("Study Mode", predefined_modes, default=current_modes)
-
-        else:  # Teacher
-            course = st.text_input("Course Expertise", value=details.get("Course", ""))
-            subject = st.text_input("Subject Expertise", value=details.get("Subject", ""))
-            fee = st.text_input("Fee", value=details.get("Fee", ""))
-            duration = st.text_input("Available Duration", value=details.get("Duration", ""))
-            university = st.text_input("University", value=details.get("University", ""))
-            status = st.text_input("Status", value=details.get("Status", ""))
+        # Study Mode - Dropdown (multiselect)
+        predefined_modes = ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"]
+        current_modes = details.get("Mode", [])
+        if isinstance(current_modes, str):
+            try:
+                import ast
+                current_modes = ast.literal_eval(current_modes)
+            except:
+                current_modes = [current_modes]
+        mode = st.multiselect("Study Mode", predefined_modes, default=current_modes)
 
         st.markdown(f"*Previously Uploaded ID:* {details.get('ID_uploaded', 'Not Provided')}")
         uploaded_id = st.file_uploader("Update ID (Optional)", type=["png", "jpg", "jpeg", "pdf"])
@@ -294,50 +247,28 @@ if menu == "👤 Profile" and st.session_state.registered:
             updated = {
                 "Name": name,
                 "Email": email,
+                "Gender": final_gender,
+                "University": final_university,
+                "Course": final_course,
+                "Timezone": timezone,
+                "Goal": goal,
+                "Language": language,
+                "Mode": mode,
                 "ID_uploaded": uploaded_id.name if uploaded_id else details.get("ID_uploaded", "Not Provided"),
-                "ProfilePic": profile_pic.name if profile_pic else details.get("ProfilePic", "Not Provided"),
-                "UserType": details.get("UserType", "")
+                "ProfilePic": profile_pic.name if profile_pic else details.get("ProfilePic", "Not Provided")
             }
-
-            if details["UserType"] == "Student":
-                updated.update({
-                    "Gender": final_gender,
-                    "University": final_university,
-                    "Course": final_course,
-                    "Timezone": timezone,
-                    "Goal": goal,
-                    "Language": language,
-                    "Mode": mode,
-                })
-            else:
-                updated.update({
-                    "Course": course,
-                    "Subject": subject,
-                    "Fee": fee,
-                    "Duration": duration,
-                    "University": university,
-                    "Status": status
-                })
-
             st.session_state.user_details = updated
+
+            # Update CSV
             df = pd.read_csv("registered_users.csv")
             df.loc[df["Email"] == email] = pd.Series(updated)
             df.to_csv("registered_users.csv", index=False)
+
             st.success("✅ Profile updated successfully!")
 
-# 🤝 Find a Partner
-def generate_dummy_partners():
-    names = ["Ankit", "Sneha", "Ravi", "Fatima", "Zhang", "Elena", "John", "Mei", "Ali", "Sara"]
-    return pd.DataFrame([{
-        "Name": random.choice(names),
-        "Gender": random.choice(["Male", "Female"]),
-        "Knowledge": random.choice(["Beginner", "Intermediate", "Advanced"]),
-        "Subject": random.choice(subjects),
-        "Language": random.choice(["English", "Hindi"]),
-        "TimeZone": random.choice(timezones),
-        "Hours": random.choice(["1 hour", "2 hours", "3–5 hours", "6+ hours"])
-    } for _ in range(10)])
+# [Continue the rest of your code as-is for 'Find a Partner', 'Matched Partners', etc.]
 
+# 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
     if not st.session_state.registered:
         st.warning("Please register first to find a partner.")
@@ -348,11 +279,11 @@ if menu == "🤝 Find a Partner":
             final_gender = gender_other if gender == "Others" else gender
 
             knowledge = st.selectbox("Partner's Knowledge Level *", ["Select an option", "Beginner", "Intermediate", "Advanced"])
-            subject = st.selectbox("Subject to Study *", ["Select an option"] + subjects)
+            subject = st.selectbox("Subject to Study *", ["Select an option", "Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"])
             subject_other = st.text_input("Please specify subject *") if subject == "Others" else ""
             final_subject = subject_other if subject == "Others" else subject
 
-            language = st.selectbox("Partner's Language *", ["Select an option"] + languages)
+            language = st.selectbox("Partner's Language *", ["Select an option", "English", "Hindi", "Others"])
             language_other = st.text_input("Specify partner language *") if language == "Others" else ""
             final_language = language_other if language == "Others" else language
 
