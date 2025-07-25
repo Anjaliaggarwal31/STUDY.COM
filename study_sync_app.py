@@ -186,7 +186,7 @@ if menu == "📝 Register":
                     st.error("⚠ Please fill all required fields.")
 
 # The rest of the app (Profile, Find a Partner, Matched Partners, Subscription Plans, Feedback) remains unchanged.
-👤 Profile Page with Submit Button
+#a Profile Page with Submit Button
 if menu == "👤 Profile" and st.session_state.registered:
     st.markdown("### 👤 Your Profile")
     details = st.session_state.user_details
