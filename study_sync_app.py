@@ -1,27 +1,34 @@
-# 📦 Imports
 import streamlit as st
 import pandas as pd
 import random
 import os
 import ast
 
-# 🛠 Page Config
 st.set_page_config(page_title="StudySync App", layout="wide")
 
-# 🧠 Session State Initialization
+# Initialize session state
 def init_session():
-    if "registered" not in st.session_state: st.session_state.registered = False
-    if "matched" not in st.session_state: st.session_state.matched = False
-    if "partners" not in st.session_state: st.session_state.partners = []
-    if "menu" not in st.session_state: st.session_state.menu = "🏠 Home"
-    if "partner_filters" not in st.session_state: st.session_state.partner_filters = {}
-    if "selected_plan" not in st.session_state: st.session_state.selected_plan = None
-    if "user_details" not in st.session_state: st.session_state.user_details = {}
-    if "feedbacks" not in st.session_state: st.session_state.feedbacks = []
-    if "user_email" not in st.session_state: st.session_state.user_email = None
-    if "profile_pic" not in st.session_state: st.session_state.profile_pic = None
+    if "registered" not in st.session_state:
+        st.session_state.registered = False
+    if "matched" not in st.session_state:
+        st.session_state.matched = False
+    if "partners" not in st.session_state:
+        st.session_state.partners = []
+    if "menu" not in st.session_state:
+        st.session_state.menu = "🏠 Home"
+    if "partner_filters" not in st.session_state:
+        st.session_state.partner_filters = {}
+    if "selected_plan" not in st.session_state:
+        st.session_state.selected_plan = None
+    if "user_details" not in st.session_state:
+        st.session_state.user_details = {}
+    if "feedbacks" not in st.session_state:
+        st.session_state.feedbacks = []
+    if "user_email" not in st.session_state:
+        st.session_state.user_email = None
+    if "profile_pic" not in st.session_state:
+        st.session_state.profile_pic = None
 
-    # Load saved user details if email found
     if os.path.exists("registered_users.csv") and st.session_state.user_email:
         df = pd.read_csv("registered_users.csv")
         if st.session_state.user_email in df["Email"].values:
@@ -31,19 +38,21 @@ def init_session():
 
 init_session()
 
-# 📚 Dropdown Options
+# Dropdown Options
 top_universities = ["Harvard University", "Stanford University", "MIT", "University of Cambridge", "University of Oxford",
                     "California Institute of Technology", "ETH Zurich", "University of Chicago", "Princeton University",
                     "National University of Singapore (NUS)", "Tsinghua University", "IIT", "IIM", "NIT", "DERI",
                     "International", "Others"]
+
 top_courses = ["Computer Science", "Engineering", "Economics", "Law", "Business Administration", "Psychology",
                "Political Science", "Physics", "Mathematics", "Biology", "UG", "PG", "Professional", "PhD", "Others"]
+
 subjects = ["Maths", "Science", "English", "CS", "Economics", "Accounts", "Others"]
 languages = ["English", "Hindi", "Others"]
 timezones = ["IST", "UTC", "EST", "PST", "Others"]
 genders = ["Select an option", "Male", "Female", "Others"]
 
-# ✨ Quotes per Page
+# Quotes
 quotes = {
     "🏠 Home": "“Learning becomes joyful when shared with a friend.”",
     "📝 Register": "“Your journey to better learning begins with a simple registration.”",
@@ -54,23 +63,28 @@ quotes = {
     "💬 Feedback": "“Your voice helps us shape a smarter StudySync.”"
 }
 
-# 🏷️ App Title
+# Header
 st.markdown("<h1 style='text-align: center;'>🚀 StudySync</h1>", unsafe_allow_html=True)
 
-# 📋 Sidebar Navigation
+# Sidebar Menu
 menu_items = ["🏠 Home"]
-menu_items += ["👤 Profile"] if st.session_state.registered else ["📝 Register"]
+if st.session_state.registered:
+    menu_items += ["👤 Profile"]
+else:
+    menu_items += ["📝 Register"]
 menu_items += ["🤝 Find a Partner", "💼 Subscription Plans", "🎯 Matched Partners", "💬 Feedback"]
+
 menu = st.sidebar.radio("📌 Navigation", menu_items, index=menu_items.index(st.session_state.menu))
 st.session_state.menu = menu
 
-# 🔐 Logout Button
+# Logout Button
 if st.session_state.registered:
     if st.sidebar.button("🚪 Logout"):
-        for key in list(st.session_state.keys()): del st.session_state[key]
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
 
-# 💬 Motivational Quote
+# Quote
 st.markdown(f"<h5 style='text-align: center; color: gray;'>{quotes[menu]}</h5>", unsafe_allow_html=True)
 
 # --- 🏠 HOME ---
@@ -91,7 +105,7 @@ if menu == "🏠 Home":
 if menu == "📝 Register":
     tab1, tab2 = st.tabs(["👨‍🎓 Register as Student", "👩‍🏫 Register as Teacher"])
 
-    # --- Student Registration ---
+    # --- Student ---
     with tab1:
         with st.form("student_register_form"):
             name = st.text_input("Full Name *")
@@ -164,7 +178,7 @@ if menu == "📝 Register":
                 else:
                     st.error("⚠️ Please fill all required fields marked with *")
 
-    # --- Teacher Registration ---
+    # --- Teacher ---
     with tab2:
         with st.form("teacher_register_form"):
             tname = st.text_input("Full Name *")
