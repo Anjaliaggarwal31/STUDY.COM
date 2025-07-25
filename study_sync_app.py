@@ -191,7 +191,7 @@ if menu == "📝 Register":
 # The rest of the app (Profile, Find a Partner, Matched Partners, Subscription Plans, Feedback) remains unchanged.
 
 
-# 👤 Profile
+👤 Profile Page with Submit Button
 if menu == "👤 Profile" and st.session_state.registered:
     st.markdown("### 👤 Your Profile")
     details = st.session_state.user_details
@@ -204,35 +204,39 @@ if menu == "👤 Profile" and st.session_state.registered:
         gender_other = st.text_input("Please specify your gender *") if gender == "Others" else ""
         final_gender = gender_other if gender == "Others" else gender
 
-        university = st.selectbox("University *", ["Select an option"] + top_universities, index=(["Select an option"] + top_universities).index(details.get("University", "Select an option")) if details.get("University", "Select an option") in (["Select an option"] + top_universities) else 0)
+        university = st.selectbox("University *", ["Select an option"] + top_universities,
+                                  index=(["Select an option"] + top_universities).index(details.get("University", "Select an option"))
+                                  if details.get("University", "Select an option") in (["Select an option"] + top_universities) else 0)
         university_other = st.text_input("Please specify your university *") if university == "Others" else ""
         final_university = university_other if university == "Others" else university
 
-        course = st.selectbox("Course *", ["Select an option"] + top_courses, index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option")) if details.get("Course", "Select an option") in (["Select an option"] + top_courses) else 0)
+        course = st.selectbox("Course *", ["Select an option"] + top_courses,
+                              index=(["Select an option"] + top_courses).index(details.get("Course", "Select an option"))
+                              if details.get("Course", "Select an option") in (["Select an option"] + top_courses) else 0)
         course_other = st.text_input("Please specify your course *") if course == "Others" else ""
         final_course = course_other if course == "Others" else course
 
-        timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones, index=(["Select an option"] + timezones).index(details.get("Timezone", "Select an option")) if details.get("Timezone", "Select an option") in (["Select an option"] + timezones) else 0)
+        timezone = st.selectbox("Time Zone *", ["Select an option"] + timezones,
+                                index=(["Select an option"] + timezones).index(details.get("Timezone", "Select an option"))
+                                if details.get("Timezone", "Select an option") in (["Select an option"] + timezones) else 0)
 
-        language = st.selectbox("Preferred Language *", ["Select an option"] + languages, index=(["Select an option"] + languages).index(details.get("Language", "Select an option")) if details.get("Language", "Select an option") in (["Select an option"] + languages) else 0)
+        language = st.selectbox("Preferred Language *", ["Select an option"] + languages,
+                                index=(["Select an option"] + languages).index(details.get("Language", "Select an option"))
+                                if details.get("Language", "Select an option") in (["Select an option"] + languages) else 0)
 
-        # Study Goal - Dropdown (multiselect)
         predefined_goals = ["Crash Course", "Detailed Preparation", "Exam Tomorrow", "Professional Exam", "Competitive Exam", "Others"]
         current_goals = details.get("Goal", [])
         if isinstance(current_goals, str):
             try:
-                import ast
                 current_goals = ast.literal_eval(current_goals)
             except:
                 current_goals = [current_goals]
         goal = st.multiselect("Study Goal *", predefined_goals, default=current_goals)
 
-        # Study Mode - Dropdown (multiselect)
         predefined_modes = ["Video 🎥", "Audio 🎧", "Notes 📄", "Chat 💬"]
         current_modes = details.get("Mode", [])
         if isinstance(current_modes, str):
             try:
-                import ast
                 current_modes = ast.literal_eval(current_modes)
             except:
                 current_modes = [current_modes]
@@ -243,7 +247,9 @@ if menu == "👤 Profile" and st.session_state.registered:
 
         profile_pic = st.file_uploader("Update Profile Picture (Optional)", type=["png", "jpg", "jpeg"])
 
-        if st.form_submit_button("Update"):
+        submitted = st.form_submit_button("Update Profile")
+
+        if submitted:
             updated = {
                 "Name": name,
                 "Email": email,
@@ -259,14 +265,12 @@ if menu == "👤 Profile" and st.session_state.registered:
             }
             st.session_state.user_details = updated
 
-            # Update CSV
-            df = pd.read_csv("registered_users.csv")
-            df.loc[df["Email"] == email] = pd.Series(updated)
-            df.to_csv("registered_users.csv", index=False)
+            if os.path.exists("registered_users.csv"):
+                df = pd.read_csv("registered_users.csv")
+                df.loc[df["Email"] == email] = pd.Series(updated)
+                df.to_csv("registered_users.csv", index=False)
 
             st.success("✅ Profile updated successfully!")
-
-# [Continue the rest of your code as-is for 'Find a Partner', 'Matched Partners', etc.]
 
 # 🤝 Find a Partner
 if menu == "🤝 Find a Partner":
